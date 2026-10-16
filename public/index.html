@@ -5,21 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#0f172a">
-  <title>Rush Swap - Eşli Çizim & Tahmin Oyunu</title>
+  <meta name="theme-color" content="#0d0221">
+  <title>Rush Swap - Siberpunk Eşli Çizim & Tahmin</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
+    /* ========================================================
+       CYBERPUNK NEON MOR TEMASI
+       ======================================================== */
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: #334155;
+      --bg: #090014;
+      --card-bg: #15052e;
+      --card-border: #38126e;
+      --accent: #d946ef;           /* Neon Fuşya / Mor */
+      --accent-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      --accent-hover: #c026d3;
+      --neon-cyan: #06b6d4;        /* Siberpunk Turkuaz */
+      --neon-glow: 0 0 16px rgba(217, 70, 239, 0.45);
+      --cyan-glow: 0 0 14px rgba(6, 182, 212, 0.45);
+      --text: #fdf4ff;
+      --text-muted: #c084fc;
+      --border: #2e0854;
       --success: #10b981;
-      --danger: #ef4444;
-      --primary: #3b82f6;
+      --danger: #f43f5e;
     }
 
     * {
@@ -34,7 +41,7 @@
       width: 100%;
       height: 100%;
       overscroll-behavior: none;
-      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      background: radial-gradient(circle at 50% 10%, #200547 0%, #0d0221 60%, #05000d 100%);
       color: var(--text);
     }
 
@@ -50,13 +57,14 @@
     }
 
     .card {
-      background: var(--card-bg);
+      background: rgba(21, 5, 46, 0.92);
+      backdrop-filter: blur(12px);
       width: 100%;
       max-width: 480px;
       padding: 24px 20px;
-      border-radius: 20px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.15);
+      border: 1px solid var(--card-border);
       text-align: center;
       position: relative;
       margin: auto;
@@ -65,16 +73,23 @@
     .hidden { display: none !important; }
 
     h1, h2, h3 { font-weight: 800; letter-spacing: -0.5px; }
-    h2 { font-size: 22px; color: var(--accent); margin-bottom: 6px; }
+    h2 {
+      font-size: 22px;
+      background: linear-gradient(135deg, #f0abfc, #d946ef, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+      text-shadow: 0 0 15px rgba(217, 70, 239, 0.3);
+    }
     p.sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
 
-    /* iOS Safari otomatik zoom yapmaması için font-size en az 16px */
+    /* Giriş Kutuları */
     input[type="text"], select {
       width: 100%;
       padding: 12px 14px;
       border-radius: 12px;
       border: 2px solid var(--border);
-      background: #0f172a;
+      background: #090014;
       color: #fff;
       font-size: 16px;
       outline: none;
@@ -82,7 +97,7 @@
     }
     input[type="text"]:focus, select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.25), var(--neon-glow);
     }
 
     button {
@@ -99,46 +114,77 @@
       font-weight: 700;
       cursor: pointer;
       user-select: none;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
     }
     button:active { transform: scale(0.97); }
 
-    .btn-accent { background: var(--accent); color: #000; }
-    .btn-accent:hover { background: var(--accent-hover); }
-    .btn-accent:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+    .btn-accent {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .btn-accent:hover {
+      box-shadow: 0 0 20px rgba(217, 70, 239, 0.6);
+      filter: brightness(1.1);
+    }
+    .btn-accent:disabled {
+      background: #271247;
+      color: #7e5c9b;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
-    .btn-secondary { background: #334155; color: #fff; }
-    .btn-secondary:hover { background: #475569; }
+    .btn-secondary {
+      background: #250947;
+      color: #e9d5ff;
+      border: 1px solid #4a1982;
+    }
+    .btn-secondary:hover {
+      background: #361063;
+      border-color: var(--accent);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+    }
+    .btn-cyan:hover {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+    }
 
     .btn-danger { background: var(--danger); color: #fff; }
-    .btn-danger:hover { background: #dc2626; }
+    .btn-danger:hover { background: #e11d48; }
 
     .btn-sm { width: auto; min-height: 36px; padding: 6px 12px; font-size: 12px; }
 
-    /* Lobi Stilleri */
+    /* Ayırıcı */
     .divider {
       display: flex;
       align-items: center;
       margin: 16px 0;
-      color: var(--text-muted);
+      color: #9333ea;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
     .divider::before, .divider::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: linear-gradient(to right, transparent, #581c87, transparent);
     }
     .divider span { padding: 0 8px; }
 
+    /* Oda Kodu Kutusu */
     .code-box {
-      background: #0f172a;
+      background: #090014;
       padding: 12px 14px;
       border-radius: 14px;
       border: 2px dashed var(--accent);
+      box-shadow: inset 0 0 15px rgba(217, 70, 239, 0.15);
       margin: 12px 0;
       display: flex;
       flex-wrap: wrap;
@@ -147,10 +193,11 @@
       gap: 8px;
     }
     .code-box .code-text {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 900;
-      letter-spacing: 3px;
-      color: var(--accent);
+      letter-spacing: 4px;
+      color: #f0abfc;
+      text-shadow: 0 0 10px rgba(217, 70, 239, 0.6);
     }
 
     .room-settings {
@@ -163,12 +210,12 @@
     .setting-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
 
     .player-list-container {
-      background: #0f172a;
+      background: #090014;
       border-radius: 12px;
       padding: 12px;
       margin: 14px 0;
       text-align: left;
-      border: 1px solid var(--border);
+      border: 1px solid var(--card-border);
     }
     .player-list {
       list-style: none;
@@ -181,7 +228,8 @@
       -webkit-overflow-scrolling: touch;
     }
     .player-item {
-      background: #1e293b;
+      background: #190538;
+      border: 1px solid #3b136f;
       padding: 8px 12px;
       border-radius: 8px;
       display: flex;
@@ -191,10 +239,11 @@
     }
     .player-badge {
       font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 5px;
-      background: rgba(245, 158, 11, 0.2);
-      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(217, 70, 239, 0.2);
+      border: 1px solid rgba(217, 70, 239, 0.4);
+      color: #f5d0fe;
       font-weight: 700;
     }
 
@@ -205,32 +254,35 @@
       margin-bottom: 10px;
     }
     .round-badge {
-      background: #334155;
+      background: #250947;
+      border: 1px solid #581c87;
       padding: 5px 12px;
       border-radius: 16px;
       font-size: 12px;
       font-weight: 700;
-      color: #cbd5e1;
+      color: #e9d5ff;
     }
     .timer-badge {
       font-size: 22px;
       font-weight: 900;
-      color: var(--danger);
-      background: #0f172a;
+      color: #38bdf8;
+      background: #090014;
       padding: 3px 14px;
       border-radius: 10px;
-      border: 2px solid var(--danger);
+      border: 2px solid #0284c7;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
       display: inline-block;
       line-height: 1.2;
     }
 
-    /* Çizim Tuvali & Mobil Uyum */
+    /* Çizim Tuvali */
     .word-highlight {
-      color: var(--success);
+      color: #38bdf8;
       font-size: 24px;
       font-weight: 900;
       letter-spacing: 0.5px;
       margin: 4px 0 8px;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
     }
     .canvas-wrapper {
       background: #ffffff;
@@ -241,7 +293,8 @@
       aspect-ratio: 4 / 3;
       max-width: 440px;
       max-height: 290px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+      border: 2px solid var(--accent);
       position: relative;
     }
     canvas {
@@ -253,14 +306,15 @@
       cursor: crosshair;
     }
 
-    /* Çizim Araçları (Dokunmatik Butonlar) */
+    /* Çizim Araçları */
     .tools-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 6px;
-      background: #0f172a;
+      background: #090014;
+      border: 1px solid var(--border);
       padding: 8px 10px;
       border-radius: 12px;
       margin-top: 8px;
@@ -279,8 +333,9 @@
       transition: transform 0.15s;
     }
     .color-swatch.active {
-      transform: scale(1.15);
+      transform: scale(1.2);
       border-color: #fff;
+      box-shadow: 0 0 8px #fff;
     }
 
     .size-buttons {
@@ -292,19 +347,21 @@
       height: 28px;
       padding: 0 6px;
       border-radius: 6px;
-      background: #334155;
-      color: #fff;
+      background: #250947;
+      color: #e9d5ff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
       cursor: pointer;
-      border: 1px solid transparent;
+      border: 1px solid #4a1982;
     }
     .size-btn.active {
       border-color: var(--accent);
-      color: var(--accent);
+      background: #3b0764;
+      color: #f5d0fe;
       font-weight: 700;
+      box-shadow: 0 0 8px rgba(217, 70, 239, 0.4);
     }
 
     /* Tahmin Aşaması */
@@ -316,23 +373,25 @@
       border-radius: 12px;
       background: #ffffff;
       object-fit: contain;
-      border: 2px solid var(--border);
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 15px rgba(217, 70, 239, 0.25);
       margin: 10px auto;
       display: block;
     }
     .waiting-box {
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid var(--primary);
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid var(--accent);
       padding: 14px;
       border-radius: 12px;
       margin-top: 12px;
-      color: #93c5fd;
+      color: #f0abfc;
       font-weight: 600;
       font-size: 13px;
       line-height: 1.4;
+      box-shadow: 0 0 15px rgba(217, 70, 239, 0.2);
     }
 
-    /* Gartic Phone Sergi (Reveal) Aşaması */
+    /* Sergi Aşaması */
     .reveal-scroll {
       max-height: 380px;
       overflow-y: auto;
@@ -345,8 +404,8 @@
       padding-right: 2px;
     }
     .reveal-card {
-      background: #0f172a;
-      border: 1px solid var(--border);
+      background: #090014;
+      border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 12px;
     }
@@ -370,7 +429,7 @@
       justify-content: space-between;
       font-size: 13px;
       padding-top: 6px;
-      border-top: 1px solid #1e293b;
+      border-top: 1px solid #1f0842;
       flex-wrap: wrap;
       gap: 4px;
     }
@@ -380,8 +439,16 @@
       border-radius: 6px;
       font-weight: 700;
     }
-    .badge-correct { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-    .badge-wrong { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    .badge-correct {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+    .badge-wrong {
+      background: rgba(244, 63, 94, 0.2);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #fb7185;
+    }
 
     /* Skor Tablosu & Podyum */
     .leaderboard-list {
@@ -392,7 +459,8 @@
       margin: 14px 0;
     }
     .leaderboard-item {
-      background: #0f172a;
+      background: #090014;
+      border: 1px solid var(--card-border);
       padding: 10px 14px;
       border-radius: 10px;
       display: flex;
@@ -401,23 +469,26 @@
       font-size: 13px;
       font-weight: 600;
     }
-    .leaderboard-item:nth-child(1) { border-left: 4px solid #f59e0b; }
-    .leaderboard-item:nth-child(2) { border-left: 4px solid #94a3b8; }
-    .leaderboard-item:nth-child(3) { border-left: 4px solid #b45309; }
+    .leaderboard-item:nth-child(1) {
+      border-left: 4px solid var(--accent);
+      box-shadow: 0 0 10px rgba(217, 70, 239, 0.2);
+    }
+    .leaderboard-item:nth-child(2) { border-left: 4px solid #38bdf8; }
+    .leaderboard-item:nth-child(3) { border-left: 4px solid #a855f7; }
 
     .network-info-box {
       margin-top: 14px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(217, 70, 239, 0.05);
+      border: 1px solid rgba(217, 70, 239, 0.2);
       padding: 10px 12px;
       border-radius: 10px;
       font-size: 11px;
-      color: var(--text-muted);
+      color: #e9d5ff;
       text-align: left;
       line-height: 1.45;
     }
-    .network-info-box strong { color: #f8fafc; }
+    .network-info-box strong { color: #fdf4ff; }
 
-    /* Küçük Ekranlar (iPhone SE, Galaxy A serisi vb. < 380px) */
     @media (max-width: 380px) {
       .card { padding: 18px 14px; }
       h2 { font-size: 20px; }
@@ -431,11 +502,11 @@
   <!-- 1. GİRİŞ & ODA SEÇİM EKRANI -->
   <div id="screenEntry" class="card">
     <h2>⚡ Rush Swap</h2>
-    <p class="sub">15 Saniyede Karala, Takas Et ve Tahmin Et! (Gartic Phone Modu)</p>
+    <p class="sub">15 Saniyede Karala, Takas Et ve Tahmin Et! (Siberpunk Modu)</p>
 
     <div style="text-align: left; margin-bottom: 12px;">
       <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Takma Adın:</label>
-      <input type="text" id="playerNameInput" placeholder="Örn: KelebekAvcısı" maxlength="15" autocomplete="off" autocorrect="off">
+      <input type="text" id="playerNameInput" placeholder="Örn: SiberNinja" maxlength="15" autocomplete="off" autocorrect="off">
     </div>
 
     <button class="btn-accent" onclick="handleCreateRoom()">
@@ -494,7 +565,7 @@
     <!-- Oyuncu Listesi -->
     <div class="player-list-container">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong style="font-size: 12px;">Katılan Oyuncular (<span id="lobbyPlayerCount">0</span>)</strong>
+        <strong style="font-size: 12px; color: #fdf4ff;">Katılan Oyuncular (<span id="lobbyPlayerCount">0</span>)</strong>
         <span id="lobbyStatusHint" style="font-size: 11px; color: var(--text-muted);">En az 2 kişi bekleniyor...</span>
       </div>
       <ul class="player-list" id="lobbyPlayerList"></ul>
@@ -515,24 +586,24 @@
     <p style="font-size: 12px; color: var(--text-muted);">Çizmen Gereken Gizli Kelime:</p>
     <div class="word-highlight" id="targetWord">---</div>
     <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
-      Çizimin tur sonunda <b id="partnerGuesserName" style="color: #fff;">...</b> adlı oyuncuya gidecek!
+      Çizimin tur sonunda <b id="partnerGuesserName" style="color: #fdf4ff;">...</b> adlı oyuncuya gidecek!
     </p>
 
-    <!-- Canvas Wrapper (Mobil Uyumlu) -->
+    <!-- Canvas Wrapper -->
     <div class="canvas-wrapper">
       <canvas id="canvas" width="400" height="300"></canvas>
     </div>
 
-    <!-- Dokunmatik Çizim Araçları -->
+    <!-- Çizim Araçları -->
     <div class="tools-bar">
       <div class="color-palette">
         <div class="color-swatch active" style="background:#000000" onclick="setColor('#000000', this)"></div>
-        <div class="color-swatch" style="background:#ef4444" onclick="setColor('#ef4444', this)"></div>
-        <div class="color-swatch" style="background:#3b82f6" onclick="setColor('#3b82f6', this)"></div>
+        <div class="color-swatch" style="background:#f43f5e" onclick="setColor('#f43f5e', this)"></div>
+        <div class="color-swatch" style="background:#06b6d4" onclick="setColor('#06b6d4', this)"></div>
         <div class="color-swatch" style="background:#10b981" onclick="setColor('#10b981', this)"></div>
         <div class="color-swatch" style="background:#f59e0b" onclick="setColor('#f59e0b', this)"></div>
-        <div class="color-swatch" style="background:#8b5cf6" onclick="setColor('#8b5cf6', this)"></div>
-        <div class="color-swatch" style="background:#ffffff; border: 1px solid #94a3b8;" onclick="setColor('#ffffff', this)" title="Silgi"></div>
+        <div class="color-swatch" style="background:#a855f7" onclick="setColor('#a855f7', this)"></div>
+        <div class="color-swatch" style="background:#ffffff; border: 1px solid #c084fc;" onclick="setColor('#ffffff', this)" title="Silgi"></div>
       </div>
 
       <div class="size-buttons">
@@ -598,7 +669,8 @@
 
     <ul class="leaderboard-list" id="finalPodiumList"></ul>
 
-    <button class="btn-accent" id="returnLobbyBtn" style="margin-top: 12px;" onclick="handleReturnToLobby()">
+    <!-- Lobiye Geri Dön Butonu (Herkese Açık ve Garantili) -->
+    <button class="btn-accent" id="returnLobbyBtn" style="margin-top: 14px;" onclick="handleReturnToLobby()">
       🔄 Lobiye Geri Dön
     </button>
   </div>
@@ -712,6 +784,16 @@
       socket.emit('startGame');
     }
 
+    // Lobiye Dönüş İşleyicisi (Garantili Çözüm)
+    function handleReturnToLobby() {
+      showScreen('screenLobby');
+      socket.emit('returnToLobby');
+    }
+
+    socket.on('lobbyReturned', () => {
+      showScreen('screenLobby');
+    });
+
     // Oda Durumu Güncellemesi
     socket.on('roomUpdate', (room) => {
       currentRoomCode = room.code;
@@ -744,7 +826,7 @@
           startBtn.disabled = true;
         } else {
           hintEl.innerText = 'Başlamaya hazır!';
-          hintEl.style.color = '#10b981';
+          hintEl.style.color = '#38bdf8';
           startBtn.disabled = false;
         }
       } else {
@@ -800,7 +882,6 @@
       initCanvas();
     }
 
-    // Mobil ekran ve dokunmatik hassas koordinat hesabı
     function getCanvasCoords(e) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
@@ -829,7 +910,7 @@
       ctx.stroke();
     }
 
-    function stopDraw(e) {
+    function stopDraw() {
       if (isDrawing) {
         ctx.closePath();
         isDrawing = false;
@@ -841,7 +922,7 @@
     canvas.addEventListener('mousemove', moveDraw);
     window.addEventListener('mouseup', stopDraw);
 
-    // Dokunmatik (Touch) Olayları (Mobil / Tablet)
+    // Dokunmatik (Touch) Olayları
     canvas.addEventListener('touchstart', startDraw, { passive: false });
     canvas.addEventListener('touchmove', moveDraw, { passive: false });
     window.addEventListener('touchend', stopDraw);
@@ -867,7 +948,7 @@
       socket.emit('submitDrawing', dataUrl);
     });
 
-    // 3. Tahmin Aşaması (Gartic Phone)
+    // 3. Tahmin Aşaması
     socket.on('guessingStart', (data) => {
       showScreen('screenGuess');
       document.getElementById('guessRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
@@ -919,7 +1000,7 @@
       container.innerHTML = data.results.map(r => `
         <div class="reveal-card">
           <div class="reveal-header">
-            <span>🎨 Çizen: <b>${r.drawerName}</b> (Kelime: <b style="color:var(--success)">${r.word}</b>)</span>
+            <span>🎨 Çizen: <b>${r.drawerName}</b> (Kelime: <b style="color:#38bdf8">${r.word}</b>)</span>
           </div>
           <img src="${r.drawing}" class="reveal-img" alt="Çizim">
           <div class="reveal-footer">
@@ -946,18 +1027,7 @@
           </li>
         `;
       }).join('');
-
-      const returnBtn = document.getElementById('returnLobbyBtn');
-      if (isRoomHost) {
-        returnBtn.classList.remove('hidden');
-      } else {
-        returnBtn.classList.add('hidden');
-      }
     });
-
-    function handleReturnToLobby() {
-      socket.emit('returnToLobby');
-    }
   </script>
 </body>
 </html>

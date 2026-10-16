@@ -404,13 +404,14 @@ io.on('connection', (socket) => {
   // 7. Tekrar Lobiye Dönüş
   socket.on('returnToLobby', () => {
     const room = getRoomOfSocket(socket);
-    if (!room || room.hostId !== socket.id) return;
+    if (!room) return;
 
     clearRoomTimer(room);
     room.status = 'lobby';
     room.currentRound = 1;
     room.players.forEach(p => p.score = 0);
     broadcastRoomUpdate(room);
+    io.to(room.code).emit('lobbyReturned');
   });
 
   // 8. Bağlantı Kopması
