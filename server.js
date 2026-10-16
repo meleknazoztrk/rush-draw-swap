@@ -32,16 +32,32 @@ app.get('/api/info', (req, res) => {
   res.json({ localIp: LOCAL_IP, port: PORT });
 });
 
-// Zengin Türkçe kelime havuzu
+// Zengin ve eğlenceli Türkçe kelime havuzu (150+ Çizilebilir Kelime)
 const WORDS = [
-  'Kedi', 'Uçak', 'Piyano', 'Dondurma', 'Gitar', 
-  'Ağaç', 'Gemi', 'Pizza', 'Gözlük', 'Roket',
-  'Balık', 'Güneş', 'Köpek', 'Telefon', 'Şapka',
-  'Ayakkabı', 'Kahve', 'Kalem', 'Çanta', 'Saat',
-  'Bisiklet', 'Ev', 'Kamera', 'Kitap', 'Kelebek',
-  'Mantı', 'Kardan Adam', 'Yıldız', 'Tavşan', 'Futbol',
-  'Denizaltı', 'Helikopter', 'Pasta', 'Karpuz', 'Sandalye',
-  'Timsah', 'Mikrofon', 'Panda', 'Kalp', 'Gökkuşağı'
+  // Hayvanlar
+  'Kedi', 'Köpek', 'Balık', 'Panda', 'Timsah', 'Tavşan', 'Fil', 'Zürafa', 'Maymun', 'Aslan',
+  'Kaplumbağa', 'Penguen', 'Kelebek', 'Yunus', 'Arı', 'Karga', 'Ahtapot', 'Kanguru', 'Dinozor', 'Bukalemun',
+  'Kirpi', 'Köstebek', 'Yarasa', 'Flamingo', 'Salyangoz', 'At', 'İnek', 'Horoz', 'Kurt', 'Sincap',
+  
+  // Nesneler & Eşyalar
+  'Uçak', 'Piyano', 'Gitar', 'Gözlük', 'Roket', 'Telefon', 'Şapka', 'Ayakkabı', 'Saat', 'Bisiklet',
+  'Kamera', 'Kitap', 'Sandalye', 'Mikrofon', 'Helikopter', 'Denizaltı', 'Lamba', 'Televizyon', 'Çekiç', 'Makas',
+  'Şemsiye', 'Süpürge', 'Ayna', 'Yastık', 'Bavul', 'Kulaklık', 'Paten', 'Kaykay', 'Teleskop', 'Mıknatıs',
+  'Pusula', 'Tarak', 'Diş Fırçası', 'El Feneri', 'Davul', 'Trompet', 'Bumerang', 'Mum', 'Anahtar', 'Kilit',
+  
+  // Yiyecekler & İçecekler
+  'Dondurma', 'Pizza', 'Kahve', 'Mantı', 'Pasta', 'Karpuz', 'Muz', 'Elma', 'Çilek', 'Burger',
+  'Patates Kızartması', 'Limon', 'Sosisli', 'Pancake', 'Donut', 'Avokado', 'Çikolata', 'Mısır', 'Havuç', 'Simit',
+  'Lahmacun', 'Çaydanlık', 'Kola', 'Kek', 'Kruvason', 'Suşi', 'Ananas', 'Kiraz', 'Tavuk Döner', 'Köfte',
+  
+  // Doğa, Mekanlar & Çevre
+  'Ağaç', 'Gemi', 'Güneş', 'Ev', 'Kardan Adam', 'Yıldız', 'Gökkuşağı', 'Kalp', 'Volkan', 'Şelale',
+  'Çöl', 'Ada', 'Dağ', 'Ay', 'Bulut', 'Şimşek', 'Kale', 'Piramit', 'Köprü', 'Çadır',
+  'Deniz Feneri', 'Rüzgar Gülü', 'Mağara', 'Iglo', 'Uzay İstasyonu', 'Kamp Ateşi', 'Göl', 'Orman', 'Çiçek', 'Mantar',
+  
+  // Karakterler, Meslekler & Eğlenceli Durumlar
+  'Uzaylı', 'Zombi', 'Korsan', 'Hayalet', 'Sihirbaz', 'Robot', 'Süper Kahraman', 'Ninja', 'Aşçı', 'Doktor',
+  'İtfaiyeci', 'Astronot', 'Dedektif', 'Kral', 'Palyaço', 'Vampir', 'Deniz Kızı', 'Mumya', 'Piyango', 'Kupa'
 ];
 
 function getRandomWords(count) {
@@ -412,6 +428,40 @@ io.on('connection', (socket) => {
     room.players.forEach(p => p.score = 0);
     broadcastRoomUpdate(room);
     io.to(room.code).emit('lobbyReturned');
+  });
+
+  // 8. İstenmeyen Kişiyi Odadan Atma (Kick) - Sadece Host
+  socket.on('kickPlayer', (targetPlayerId) => {
+    const room = getRoomOfSocket(socket);
+    if (!room || room.hostId !== socket.id) return;
+    if (targetPlayerId === socket.id) return; // Host kendini atamaz
+
+    const kickedPlayer = room.players.find(p => p.id === targetPlayerId);
+    if (!kickedPlayer) return;
+
+    room.players = room.players.filter(p => p.id !== targetPlayerId);
+
+    const targetSocket = io.sockets.sockets.get(targetPlayerId);
+    if (targetSocket) {
+      targetSocket.leave(room.code);
+      targetSocket.emit('kickedFromRoom', 'Oda kurucusu tarafından odadan çıkarıldınız.');
+    }
+
+    io.to(room.code).emit('playerLeft', {
+      name: kickedPlayer.name,
+      remainingCount: room.players.length
+    });
+
+    broadcastRoomUpdate(room);
+  });
+
+  // 9. Resim Sergisini Hemen Atla (Skip Reveal)
+  socket.on('skipReveal', () => {
+    const room = getRoomOfSocket(socket);
+    if (!room || room.status !== 'reveal') return;
+
+    clearRoomTimer(room);
+    proceedToNextStep(room);
   });
 
   // 8. Bağlantı Kopması

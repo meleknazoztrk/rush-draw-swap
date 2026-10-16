@@ -555,7 +555,8 @@
       <div class="setting-group">
         <label>Çizim Süresi:</label>
         <select id="selectDrawTime" onchange="handleSettingChange()">
-          <option value="15" selected>15 Saniye</option>
+          <option value="10">10 Saniye ⚡ (Ultra Rush)</option>
+          <option value="15" selected>15 Saniye (Normal)</option>
           <option value="20">20 Saniye</option>
           <option value="30">30 Saniye</option>
         </select>
@@ -649,7 +650,10 @@
   <div id="screenReveal" class="card hidden">
     <div class="badge-bar">
       <span class="round-badge" id="revealRoundBadge">Tur 1 Sonu</span>
-      <div class="timer-badge" id="revealTimer">10</div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="timer-badge" id="revealTimer">10</div>
+        <button class="btn-accent btn-sm" onclick="handleSkipReveal()" style="padding: 4px 10px; font-size: 11px;">⏭️ Atla</button>
+      </div>
     </div>
 
     <h2>🎭 Tur Sonu Sergisi</h2>
@@ -657,9 +661,9 @@
 
     <div class="reveal-scroll" id="revealCardsContainer"></div>
 
-    <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
-      Sonraki tura geri sayılıyor...
-    </p>
+    <button class="btn-accent" style="margin-top: 10px;" onclick="handleSkipReveal()">
+      ⏭️ Beklemeden Hemen Sonraki Tura Geç
+    </button>
   </div>
 
   <!-- 6. OYUN SONU & PODYUM EKRANI -->
@@ -784,6 +788,23 @@
       socket.emit('startGame');
     }
 
+    // İstenmeyen Kişiyi Odadan Atma (Host Yetkisi)
+    function handleKickPlayer(playerId, playerName) {
+      if (confirm(`"${playerName}" adlı oyuncuyu odadan atmak istediğinize emin misiniz?`)) {
+        socket.emit('kickPlayer', playerId);
+      }
+    }
+
+    socket.on('kickedFromRoom', (msg) => {
+      alert('🚫 ' + (msg || 'Oda yöneticisi tarafından odadan çıkarıldınız.'));
+      showScreen('screenEntry');
+    });
+
+    // Sergi Aşamasını Atla (Beklemeden Geç)
+    function handleSkipReveal() {
+      socket.emit('skipReveal');
+    }
+
     // Lobiye Dönüş İşleyicisi (Garantili Çözüm)
     function handleReturnToLobby() {
       showScreen('screenLobby');
@@ -812,7 +833,10 @@
       playerListEl.innerHTML = room.players.map(p => `
         <li class="player-item">
           <span>${p.isHost ? '👑 ' : '👤 '}<b>${p.name}</b> ${p.id === socket.id ? '(Sen)' : ''}</span>
-          <span class="player-badge">${p.score} Puan</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="player-badge">${p.score} Puan</span>
+            ${isRoomHost && p.id !== socket.id ? `<button class="btn-danger" style="width:auto; min-height:26px; padding:2px 8px; font-size:11px; border-radius:6px;" onclick="handleKickPlayer('${p.id}', '${p.name}')">🚫 At</button>` : ''}
+          </div>
         </li>
       `).join('');
 
