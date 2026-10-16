@@ -2,59 +2,81 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
   <title>Rush Swap - Eşli Çizim & Tahmin Oyunu</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
     :root {
-  --bg: #0d0221;
-  --card-bg: #19053b;
-  --accent: #a855f7;
-  --accent-hover: #9333ea;
-  --text: #ffffff;
-  --text-muted: #a78bfa;
-  --border: #2e1065;
-  --success: #06b6d4;
-  --danger: #f43f5e;
-  --primary: #8b5cf6;
-}
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-    body {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
+      --primary: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overscroll-behavior: none;
       background: radial-gradient(circle at top, #1e293b, #0f172a);
       color: var(--text);
+    }
+
+    body {
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 12px;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     .card {
       background: var(--card-bg);
       width: 100%;
-      max-width: 540px;
-      padding: 28px;
-      border-radius: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      max-width: 480px;
+      padding: 24px 20px;
+      border-radius: 20px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.08);
       text-align: center;
       position: relative;
+      margin: auto;
     }
 
     .hidden { display: none !important; }
 
     h1, h2, h3 { font-weight: 800; letter-spacing: -0.5px; }
-    h2 { font-size: 24px; color: var(--accent); margin-bottom: 8px; }
-    p.sub { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+    h2 { font-size: 22px; color: var(--accent); margin-bottom: 6px; }
+    p.sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
 
+    /* iOS Safari otomatik zoom yapmaması için font-size en az 16px */
     input[type="text"], select {
       width: 100%;
-      padding: 12px 16px;
+      padding: 12px 14px;
       border-radius: 12px;
       border: 2px solid var(--border);
       background: #0f172a;
       color: #fff;
-      font-size: 15px;
+      font-size: 16px;
       outline: none;
       transition: all 0.2s;
     }
@@ -67,17 +89,20 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       width: 100%;
-      padding: 12px 20px;
+      min-height: 46px;
+      padding: 10px 16px;
       border-radius: 12px;
       border: none;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      user-select: none;
+      transition: all 0.15s ease;
     }
-    button:active { transform: scale(0.98); }
+    button:active { transform: scale(0.97); }
+
     .btn-accent { background: var(--accent); color: #000; }
     .btn-accent:hover { background: var(--accent-hover); }
     .btn-accent:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
@@ -88,17 +113,18 @@
     .btn-danger { background: var(--danger); color: #fff; }
     .btn-danger:hover { background: #dc2626; }
 
-    .btn-sm { width: auto; padding: 6px 12px; font-size: 13px; }
+    .btn-sm { width: auto; min-height: 36px; padding: 6px 12px; font-size: 12px; }
 
     /* Lobi Stilleri */
     .divider {
       display: flex;
       align-items: center;
-      margin: 18px 0;
+      margin: 16px 0;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .divider::before, .divider::after {
       content: '';
@@ -106,39 +132,41 @@
       height: 1px;
       background: var(--border);
     }
-    .divider span { padding: 0 10px; }
+    .divider span { padding: 0 8px; }
 
     .code-box {
       background: #0f172a;
-      padding: 12px 18px;
+      padding: 12px 14px;
       border-radius: 14px;
       border: 2px dashed var(--accent);
-      margin: 14px 0;
+      margin: 12px 0;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
     }
     .code-box .code-text {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
-      letter-spacing: 4px;
+      letter-spacing: 3px;
       color: var(--accent);
     }
 
     .room-settings {
       display: flex;
-      gap: 12px;
-      margin: 16px 0;
+      gap: 10px;
+      margin: 14px 0;
       text-align: left;
     }
     .setting-group { flex: 1; }
-    .setting-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .setting-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
 
     .player-list-container {
       background: #0f172a;
-      border-radius: 14px;
-      padding: 14px;
-      margin: 16px 0;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 14px 0;
       text-align: left;
       border: 1px solid var(--border);
     }
@@ -146,24 +174,25 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 10px;
-      max-height: 180px;
+      gap: 6px;
+      margin-top: 8px;
+      max-height: 150px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .player-item {
       background: #1e293b;
-      padding: 8px 14px;
-      border-radius: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 14px;
+      font-size: 13px;
     }
     .player-badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 6px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 5px;
       background: rgba(245, 158, 11, 0.2);
       color: var(--accent);
       font-weight: 700;
@@ -173,88 +202,95 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
     .round-badge {
       background: #334155;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 12px;
       font-weight: 700;
       color: #cbd5e1;
     }
     .timer-badge {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       color: var(--danger);
       background: #0f172a;
-      padding: 4px 16px;
-      border-radius: 12px;
+      padding: 3px 14px;
+      border-radius: 10px;
       border: 2px solid var(--danger);
       display: inline-block;
+      line-height: 1.2;
     }
 
-    /* Çizim Tuvali & Araçları */
+    /* Çizim Tuvali & Mobil Uyum */
     .word-highlight {
       color: var(--success);
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
-      letter-spacing: 1px;
-      margin: 6px 0 12px;
+      letter-spacing: 0.5px;
+      margin: 4px 0 8px;
     }
     .canvas-wrapper {
       background: #ffffff;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
-      margin: 12px auto;
+      margin: 10px auto;
       width: 100%;
+      aspect-ratio: 4 / 3;
       max-width: 440px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      max-height: 290px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      position: relative;
     }
     canvas {
       display: block;
       background: #ffffff;
       width: 100%;
-      height: 290px;
+      height: 100%;
       touch-action: none;
       cursor: crosshair;
     }
 
+    /* Çizim Araçları (Dokunmatik Butonlar) */
     .tools-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       background: #0f172a;
-      padding: 8px 12px;
+      padding: 8px 10px;
       border-radius: 12px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
     .color-palette {
       display: flex;
-      gap: 6px;
+      gap: 5px;
+      align-items: center;
     }
     .color-swatch {
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
       transition: transform 0.15s;
     }
     .color-swatch.active {
-      transform: scale(1.2);
+      transform: scale(1.15);
       border-color: #fff;
     }
 
     .size-buttons {
       display: flex;
-      gap: 6px;
+      gap: 4px;
     }
     .size-btn {
-      width: 28px;
+      min-width: 32px;
       height: 28px;
+      padding: 0 6px;
       border-radius: 6px;
       background: #334155;
       color: #fff;
@@ -268,73 +304,79 @@
     .size-btn.active {
       border-color: var(--accent);
       color: var(--accent);
+      font-weight: 700;
     }
 
     /* Tahmin Aşaması */
     .preview-img {
       width: 100%;
       max-width: 440px;
-      height: 290px;
-      border-radius: 14px;
+      aspect-ratio: 4 / 3;
+      max-height: 280px;
+      border-radius: 12px;
       background: #ffffff;
       object-fit: contain;
       border: 2px solid var(--border);
-      margin: 12px auto;
+      margin: 10px auto;
       display: block;
     }
     .waiting-box {
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(59, 130, 246, 0.12);
       border: 1px solid var(--primary);
-      padding: 16px;
-      border-radius: 14px;
-      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      margin-top: 12px;
       color: #93c5fd;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     /* Gartic Phone Sergi (Reveal) Aşaması */
     .reveal-scroll {
-      max-height: 420px;
+      max-height: 380px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin: 16px 0;
+      gap: 12px;
+      margin: 12px 0;
       text-align: left;
-      padding-right: 4px;
+      padding-right: 2px;
     }
     .reveal-card {
       background: #0f172a;
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
+      border-radius: 12px;
+      padding: 12px;
     }
     .reveal-header {
       display: flex;
       justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
     }
     .reveal-img {
       width: 100%;
-      height: 180px;
+      height: 160px;
       object-fit: contain;
       background: #fff;
       border-radius: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .reveal-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 14px;
+      font-size: 13px;
       padding-top: 6px;
       border-top: 1px solid #1e293b;
+      flex-wrap: wrap;
+      gap: 4px;
     }
     .status-badge {
-      font-size: 12px;
-      padding: 4px 10px;
+      font-size: 11px;
+      padding: 3px 8px;
       border-radius: 6px;
       font-weight: 700;
     }
@@ -347,16 +389,16 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin: 16px 0;
+      margin: 14px 0;
     }
     .leaderboard-item {
       background: #0f172a;
-      padding: 10px 16px;
+      padding: 10px 14px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
     }
     .leaderboard-item:nth-child(1) { border-left: 4px solid #f59e0b; }
@@ -364,53 +406,66 @@
     .leaderboard-item:nth-child(3) { border-left: 4px solid #b45309; }
 
     .network-info-box {
-      margin-top: 16px;
+      margin-top: 14px;
       background: rgba(255, 255, 255, 0.03);
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 11px;
       color: var(--text-muted);
       text-align: left;
-      line-height: 1.5;
+      line-height: 1.45;
     }
     .network-info-box strong { color: #f8fafc; }
+
+    /* Küçük Ekranlar (iPhone SE, Galaxy A serisi vb. < 380px) */
+    @media (max-width: 380px) {
+      .card { padding: 18px 14px; }
+      h2 { font-size: 20px; }
+      .color-swatch { width: 22px; height: 22px; }
+      .tools-bar { justify-content: center; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. GİRİŞ -->
+  <!-- 1. GİRİŞ & ODA SEÇİM EKRANI -->
   <div id="screenEntry" class="card">
     <h2>⚡ Rush Swap</h2>
     <p class="sub">15 Saniyede Karala, Takas Et ve Tahmin Et! (Gartic Phone Modu)</p>
 
-    <div style="text-align: left; margin-bottom: 14px;">
-      <label style="font-size: 13px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Takma Adın:</label>
-      <input type="text" id="playerNameInput" placeholder="Örn: KelebekAvcısı" maxlength="15">
+    <div style="text-align: left; margin-bottom: 12px;">
+      <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Takma Adın:</label>
+      <input type="text" id="playerNameInput" placeholder="Örn: KelebekAvcısı" maxlength="15" autocomplete="off" autocorrect="off">
     </div>
 
     <button class="btn-accent" onclick="handleCreateRoom()">
-       Yeni Özel Oda Oluştur
+      ✨ Yeni Özel Oda Oluştur
     </button>
 
     <div class="divider"><span>VEYA KODLA KATIL</span></div>
 
-    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-      <input type="text" id="roomCodeInput" placeholder="🌐4 Haneli Oda Kodu" maxlength="4" style="text-transform: uppercase; font-weight: 800; letter-spacing: 2px;">
-      <button class="btn-secondary" style="width: auto; padding: 0 20px;" onclick="handleJoinRoom()">Katıl</button>
+    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+      <input type="text" id="roomCodeInput" placeholder="Oda Kodu (4 Harf)" maxlength="4" style="text-transform: uppercase; font-weight: 800; letter-spacing: 2px; text-align: center;">
+      <button class="btn-secondary" style="width: auto; padding: 0 16px; white-space: nowrap;" onclick="handleJoinRoom()">Katıl</button>
     </div>
 
-    
-  <!-- ODA LOBİSİ -->
+    <div class="network-info-box">
+      🌐 <strong>Telefondan Arkadaşlarınla Oyna:</strong><br>
+      Oda kurduktan sonra <b>"🔗 Davet Linki"</b> butonuna basıp WhatsApp veya mesajla arkadaşına atabilirsin. Tıklayan herkes doğrudan odana katılır!
+    </div>
+  </div>
+
+  <!-- 2. ODA LOBİSİ & BEKLEME EKRANI -->
   <div id="screenLobby" class="card hidden">
     <h2>Lobi Odası</h2>
-    <p class="sub">Arkadaşlarına bu kodu ver, odaya sadece kodu bilenler girebilir!</p>
+    <p class="sub">Arkadaşlarına bu kodu veya linki gönder, odaya sadece davetliler girebilir!</p>
 
     <div class="code-box">
       <div>
-        <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); display: block;">ODA KODU</span>
+        <span style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); display: block;">ODA KODU</span>
         <span class="code-text" id="displayRoomCode">----</span>
       </div>
-      <div style="display: flex; gap: 6px;">
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
         <button class="btn-secondary btn-sm" onclick="copyRoomCode()">📋 Kodu Kopyala</button>
         <button class="btn-accent btn-sm" onclick="copyInviteLink()">🔗 Davet Linki</button>
       </div>
@@ -439,14 +494,14 @@
     <!-- Oyuncu Listesi -->
     <div class="player-list-container">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong style="font-size: 13px;">Katılan Oyuncular (<span id="lobbyPlayerCount">0</span>)</strong>
-        <span id="lobbyStatusHint" style="font-size: 12px; color: var(--text-muted);">En az 2 kişi bekleniyor...</span>
+        <strong style="font-size: 12px;">Katılan Oyuncular (<span id="lobbyPlayerCount">0</span>)</strong>
+        <span id="lobbyStatusHint" style="font-size: 11px; color: var(--text-muted);">En az 2 kişi bekleniyor...</span>
       </div>
       <ul class="player-list" id="lobbyPlayerList"></ul>
     </div>
 
     <button class="btn-accent" id="startBtn" onclick="handleStartGame()" disabled>
-       Oyna
+      🚀 Oyunu Başlat
     </button>
   </div>
 
@@ -457,18 +512,18 @@
       <div class="timer-badge" id="drawTimer">15</div>
     </div>
 
-    <p style="font-size: 13px; color: var(--text-muted);">Çizmen Gereken Gizli Kelime:</p>
+    <p style="font-size: 12px; color: var(--text-muted);">Çizmen Gereken Gizli Kelime:</p>
     <div class="word-highlight" id="targetWord">---</div>
-    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
       Çizimin tur sonunda <b id="partnerGuesserName" style="color: #fff;">...</b> adlı oyuncuya gidecek!
     </p>
 
-    <!-- Canvas -->
+    <!-- Canvas Wrapper (Mobil Uyumlu) -->
     <div class="canvas-wrapper">
-      <canvas id="canvas" width="440" height="290"></canvas>
+      <canvas id="canvas" width="400" height="300"></canvas>
     </div>
 
-    <!-- Çizim Araçları (Renk & Boyut) -->
+    <!-- Dokunmatik Çizim Araçları -->
     <div class="tools-bar">
       <div class="color-palette">
         <div class="color-swatch active" style="background:#000000" onclick="setColor('#000000', this)"></div>
@@ -489,7 +544,7 @@
       <button class="btn-danger btn-sm" onclick="clearCanvas()">Temizle</button>
     </div>
 
-    <button class="btn-accent" style="margin-top: 14px;" onclick="finishDrawingEarly()">
+    <button class="btn-accent" style="margin-top: 10px;" onclick="finishDrawingEarly()">
       ✓ Çizimi Tamamladım
     </button>
   </div>
@@ -502,39 +557,36 @@
     </div>
 
     <h2>🔄 Kağıtlar Takas Edildi!</h2>
-    <p class="sub"><b id="artistName" style="color: var(--accent);">Bir arkadaşının</b> çizimini dikkatle incele ve tahmin et:</p>
+    <p class="sub"><b id="artistName" style="color: var(--accent);">Bir arkadaşının</b> çizimini incele ve tahmin et:</p>
 
     <img id="receivedDrawingImg" class="preview-img" alt="Arkadaşının Çizimi">
 
     <div id="guessInputArea">
-      <input type="text" id="guessInput" placeholder="Sence bu çizim ne? (Enter)">
-      <button class="btn-accent" style="margin-top: 10px;" onclick="handleSendGuess()">
+      <input type="text" id="guessInput" placeholder="Sence bu ne? (Enter)">
+      <button class="btn-accent" style="margin-top: 8px;" onclick="handleSendGuess()">
         Tahmini Gönder
       </button>
     </div>
 
-    <!-- Gartic Phone mantığı: Tahmini yazınca bekletme kartı -->
     <div id="guessWaitArea" class="waiting-box hidden">
       ⏳ <strong>Tahminin alındı!</strong><br>
-      Gartic Phone modunda sonuçlar herkes tahminini tamamlayınca sergilenecek...
+      Gartic Phone modunda sonuçlar herkes tahminini bitirince sergilenecek...
     </div>
   </div>
 
-  <!-- 5. GARTIC PHONE SERGİ (REVEAL) EKRANI -->
+  <!-- 5. SERGİ (REVEAL) EKRANI -->
   <div id="screenReveal" class="card hidden">
     <div class="badge-bar">
-      <span class="round-badge" id="revealRoundBadge">Tur 1 Sonuçları</span>
+      <span class="round-badge" id="revealRoundBadge">Tur 1 Sonu</span>
       <div class="timer-badge" id="revealTimer">10</div>
     </div>
 
     <h2>🎭 Tur Sonu Sergisi</h2>
     <p class="sub">Kimin ne çizdiğine ve yapılan tahminlere göz atın!</p>
 
-    <div class="reveal-scroll" id="revealCardsContainer">
-      <!-- Dinamik çizim kartları eklenecek -->
-    </div>
+    <div class="reveal-scroll" id="revealCardsContainer"></div>
 
-    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
       Sonraki tura geri sayılıyor...
     </p>
   </div>
@@ -546,7 +598,7 @@
 
     <ul class="leaderboard-list" id="finalPodiumList"></ul>
 
-    <button class="btn-accent" id="returnLobbyBtn" style="margin-top: 14px;" onclick="handleReturnToLobby()">
+    <button class="btn-accent" id="returnLobbyBtn" style="margin-top: 12px;" onclick="handleReturnToLobby()">
       🔄 Lobiye Geri Dön
     </button>
   </div>
@@ -558,16 +610,6 @@
     let currentRoomCode = '';
     let isRoomHost = false;
 
-    // Sunucu Ağ IP bilgisini çek
-    fetch('/api/info')
-      .then(r => r.json())
-      .then(info => {
-        document.getElementById('localIpSpan').innerText = `http://${info.localIp}:${info.port}`;
-      })
-      .catch(() => {
-        document.getElementById('localIpSpan').innerText = window.location.origin;
-      });
-
     // Ekran Geçiş Yardımcısı
     function showScreen(screenId) {
       const screens = ['screenEntry', 'screenLobby', 'screenDraw', 'screenGuess', 'screenReveal', 'screenGameOver'];
@@ -578,6 +620,7 @@
           else el.classList.add('hidden');
         }
       });
+      window.scrollTo(0, 0);
     }
 
     // 1. Oda Oluşturma & Katılma
@@ -618,7 +661,6 @@
       currentRoomCode = data.code;
       isRoomHost = false;
       document.getElementById('displayRoomCode').innerText = data.code;
-      // Host olmayanlar ayarları değiştiremez
       document.getElementById('selectRounds').disabled = true;
       document.getElementById('selectDrawTime').disabled = true;
       document.getElementById('startBtn').classList.add('hidden');
@@ -627,20 +669,28 @@
 
     function copyRoomCode() {
       if (!currentRoomCode) return;
-      navigator.clipboard.writeText(currentRoomCode).then(() => {
-        alert(`Oda Kodu Kopyalandı: ${currentRoomCode}`);
-      });
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(currentRoomCode).then(() => {
+          alert(`Oda Kodu Kopyalandı: ${currentRoomCode}`);
+        });
+      } else {
+        alert(`Oda Kodu: ${currentRoomCode}`);
+      }
     }
 
     function copyInviteLink() {
       if (!currentRoomCode) return;
       const inviteUrl = `${window.location.origin}?room=${currentRoomCode}`;
-      navigator.clipboard.writeText(inviteUrl).then(() => {
-        alert(`🎉 Davet Linki Kopyalandı!\nArkadaşına bu linki gönderebilirsin:\n${inviteUrl}`);
-      });
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(inviteUrl).then(() => {
+          alert(`🎉 Davet Linki Kopyalandı!\nArkadaşına bu linki gönderebilirsin:\n${inviteUrl}`);
+        });
+      } else {
+        prompt('Davet linkini kopyalayıp arkadaşına gönder:', inviteUrl);
+      }
     }
 
-    // URL'de ?room=KOD varsa otomatik kutuya yaz
+    // URL'de ?room=KOD parametresi varsa otomatik doldur
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const roomParam = params.get('room');
@@ -668,17 +718,14 @@
       document.getElementById('displayRoomCode').innerText = room.code;
       document.getElementById('lobbyPlayerCount').innerText = room.players.length;
 
-      // Host kontrolü
       const me = room.players.find(p => p.id === socket.id);
       isRoomHost = me ? me.isHost : false;
 
-      // Ayar kutularını senkronize et
       document.getElementById('selectRounds').value = room.totalRounds;
       document.getElementById('selectDrawTime').value = room.drawTime;
       document.getElementById('selectRounds').disabled = !isRoomHost;
       document.getElementById('selectDrawTime').disabled = !isRoomHost;
 
-      // Oyuncu listesini oluştur
       const playerListEl = document.getElementById('lobbyPlayerList');
       playerListEl.innerHTML = room.players.map(p => `
         <li class="player-item">
@@ -715,10 +762,10 @@
     });
 
     socket.on('playerLeft', (data) => {
-      console.log(`${data.name} odadan ayrıldı.`);
+      console.log(`${data.name} ayrıldı.`);
     });
 
-    // 2. Çizim Aşaması
+    // 2. Çizim Aşaması & Mobil Dokunmatik Motoru
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
@@ -753,12 +800,13 @@
       initCanvas();
     }
 
+    // Mobil ekran ve dokunmatik hassas koordinat hesabı
     function getCanvasCoords(e) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
       return {
         x: (clientX - rect.left) * scaleX,
         y: (clientY - rect.top) * scaleY
@@ -766,30 +814,38 @@
     }
 
     function startDraw(e) {
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       isDrawing = true;
       const { x, y } = getCanvasCoords(e);
       ctx.beginPath();
       ctx.moveTo(x, y);
     }
+
     function moveDraw(e) {
       if (!isDrawing) return;
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       const { x, y } = getCanvasCoords(e);
       ctx.lineTo(x, y);
       ctx.stroke();
     }
-    function stopDraw() {
-      isDrawing = false;
+
+    function stopDraw(e) {
+      if (isDrawing) {
+        ctx.closePath();
+        isDrawing = false;
+      }
     }
 
+    // Mouse Olayları
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', moveDraw);
     window.addEventListener('mouseup', stopDraw);
 
+    // Dokunmatik (Touch) Olayları (Mobil / Tablet)
     canvas.addEventListener('touchstart', startDraw, { passive: false });
     canvas.addEventListener('touchmove', moveDraw, { passive: false });
     window.addEventListener('touchend', stopDraw);
+    window.addEventListener('touchcancel', stopDraw);
 
     socket.on('drawingStart', (data) => {
       showScreen('screenDraw');
@@ -803,7 +859,7 @@
     function finishDrawingEarly() {
       const dataUrl = canvas.toDataURL('image/png');
       socket.emit('submitDrawing', dataUrl);
-      alert('Çizimin gönderildi! Diğerlerinin bitirmesi bekleniyor...');
+      alert('Çizimin gönderildi! Diğer oyuncular bekleniyor...');
     }
 
     socket.on('requestDrawings', () => {
@@ -823,7 +879,6 @@
       document.getElementById('guessWaitArea').classList.add('hidden');
       document.getElementById('guessInput').value = '';
       document.getElementById('guessInput').disabled = false;
-      document.getElementById('guessInput').focus();
     });
 
     document.getElementById('guessInput').addEventListener('keydown', (e) => {
@@ -839,7 +894,7 @@
       input.disabled = true;
     }
 
-    socket.on('guessReceived', (data) => {
+    socket.on('guessReceived', () => {
       document.getElementById('guessInputArea').classList.add('hidden');
       document.getElementById('guessWaitArea').classList.remove('hidden');
     });
@@ -854,7 +909,7 @@
       if (rt) rt.innerText = timeLeft;
     });
 
-    // 5. Sergi / Teşhir Aşaması 
+    // 5. Sergi / Teşhir Aşaması
     socket.on('revealStart', (data) => {
       showScreen('screenReveal');
       document.getElementById('revealRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds} Sonu`;
