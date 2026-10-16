@@ -1,0 +1,13 @@
+{
+  "name": "rush-draw-swap",
+  "version": "1.0.0",
+  "description": "15 saniyelik eşli çizim ve tahmin oyunu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

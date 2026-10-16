@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rush Swap - Eşli Çizim & Tahmin Oyunu</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    :root {
+  --bg: #0d0221;
+  --card-bg: #19053b;
+  --accent: #a855f7;
+  --accent-hover: #9333ea;
+  --text: #ffffff;
+  --text-muted: #a78bfa;
+  --border: #2e1065;
+  --success: #06b6d4;
+  --danger: #f43f5e;
+  --primary: #8b5cf6;
+}
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body {
+      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 540px;
+      padding: 28px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
+      position: relative;
+    }
+
+    .hidden { display: none !important; }
+
+    h1, h2, h3 { font-weight: 800; letter-spacing: -0.5px; }
+    h2 { font-size: 24px; color: var(--accent); margin-bottom: 8px; }
+    p.sub { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #0f172a;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-accent { background: var(--accent); color: #000; }
+    .btn-accent:hover { background: var(--accent-hover); }
+    .btn-accent:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+
+    .btn-secondary { background: #334155; color: #fff; }
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+
+    .btn-sm { width: auto; padding: 6px 12px; font-size: 13px; }
+
+    /* Lobi Stilleri */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 18px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider span { padding: 0 10px; }
+
+    .code-box {
+      background: #0f172a;
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: 2px dashed var(--accent);
+      margin: 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .code-box .code-text {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: var(--accent);
+    }
+
+    .room-settings {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      text-align: left;
+    }
+    .setting-group { flex: 1; }
+    .setting-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+
+    .player-list-container {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 14px;
+      margin: 16px 0;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .player-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .player-item {
+      background: #1e293b;
+      padding: 8px 14px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    .player-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .round-badge {
+      background: #334155;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+    .timer-badge {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--danger);
+      background: #0f172a;
+      padding: 4px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--danger);
+      display: inline-block;
+    }
+
+    /* Çizim Tuvali & Araçları */
+    .word-highlight {
+      color: var(--success);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin: 6px 0 12px;
+    }
+    .canvas-wrapper {
+      background: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 12px auto;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    canvas {
+      display: block;
+      background: #ffffff;
+      width: 100%;
+      height: 290px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .tools-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .color-palette {
+      display: flex;
+      gap: 6px;
+    }
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s;
+    }
+    .color-swatch.active {
+      transform: scale(1.2);
+      border-color: #fff;
+    }
+
+    .size-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    .size-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #334155;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .size-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Tahmin Aşaması */
+    .preview-img {
+      width: 100%;
+      max-width: 440px;
+      height: 290px;
+      border-radius: 14px;
+      background: #ffffff;
+      object-fit: contain;
+      border: 2px solid var(--border);
+      margin: 12px auto;
+      display: block;
+    }
+    .waiting-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--primary);
+      padding: 16px;
+      border-radius: 14px;
+      margin-top: 14px;
+      color: #93c5fd;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Gartic Phone Sergi (Reveal) Aşaması */
+    .reveal-scroll {
+      max-height: 420px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 16px 0;
+      text-align: left;
+      padding-right: 4px;
+    }
+    .reveal-card {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .reveal-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .reveal-img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .reveal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding-top: 6px;
+      border-top: 1px solid #1e293b;
+    }
+    .status-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+    .badge-correct { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .badge-wrong { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+    /* Skor Tablosu & Podyum */
+    .leaderboard-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .leaderboard-item {
+      background: #0f172a;
+      padding: 10px 16px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .leaderboard-item:nth-child(1) { border-left: 4px solid #f59e0b; }
+    .leaderboard-item:nth-child(2) { border-left: 4px solid #94a3b8; }
+    .leaderboard-item:nth-child(3) { border-left: 4px solid #b45309; }
+
+    .network-info-box {
+      margin-top: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: left;
+      line-height: 1.5;
+    }
+    .network-info-box strong { color: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <!-- 1. GİRİŞ -->
+  <div id="screenEntry" class="card">
+    <h2>⚡ Rush Swap</h2>
+    <p class="sub">15 Saniyede Karala, Takas Et ve Tahmin Et! (Gartic Phone Modu)</p>
+
+    <div style="text-align: left; margin-bottom: 14px;">
+      <label style="font-size: 13px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Takma Adın:</label>
+      <input type="text" id="playerNameInput" placeholder="Örn: KelebekAvcısı" maxlength="15">
+    </div>
+
+    <button class="btn-accent" onclick="handleCreateRoom()">
+       Yeni Özel Oda Oluştur
+    </button>
+
+    <div class="divider"><span>VEYA KODLA KATIL</span></div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <input type="text" id="roomCodeInput" placeholder="🌐4 Haneli Oda Kodu" maxlength="4" style="text-transform: uppercase; font-weight: 800; letter-spacing: 2px;">
+      <button class="btn-secondary" style="width: auto; padding: 0 20px;" onclick="handleJoinRoom()">Katıl</button>
+    </div>
+
+    
+  <!-- ODA LOBİSİ -->
+  <div id="screenLobby" class="card hidden">
+    <h2>Lobi Odası</h2>
+    <p class="sub">Arkadaşlarına bu kodu ver, odaya sadece kodu bilenler girebilir!</p>
+
+    <div class="code-box">
+      <div>
+        <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); display: block;">ODA KODU</span>
+        <span class="code-text" id="displayRoomCode">----</span>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button class="btn-secondary btn-sm" onclick="copyRoomCode()">📋 Kodu Kopyala</button>
+        <button class="btn-accent btn-sm" onclick="copyInviteLink()">🔗 Davet Linki</button>
+      </div>
+    </div>
+
+    <!-- Host Ayarları -->
+    <div class="room-settings">
+      <div class="setting-group">
+        <label>Tur Sayısı:</label>
+        <select id="selectRounds" onchange="handleSettingChange()">
+          <option value="1">1 Tur</option>
+          <option value="3" selected>3 Tur</option>
+          <option value="5">5 Tur</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label>Çizim Süresi:</label>
+        <select id="selectDrawTime" onchange="handleSettingChange()">
+          <option value="15" selected>15 Saniye</option>
+          <option value="20">20 Saniye</option>
+          <option value="30">30 Saniye</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Oyuncu Listesi -->
+    <div class="player-list-container">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong style="font-size: 13px;">Katılan Oyuncular (<span id="lobbyPlayerCount">0</span>)</strong>
+        <span id="lobbyStatusHint" style="font-size: 12px; color: var(--text-muted);">En az 2 kişi bekleniyor...</span>
+      </div>
+      <ul class="player-list" id="lobbyPlayerList"></ul>
+    </div>
+
+    <button class="btn-accent" id="startBtn" onclick="handleStartGame()" disabled>
+       Oyna
+    </button>
+  </div>
+
+  <!-- 3. ÇİZİM AŞAMASI EKRANI -->
+  <div id="screenDraw" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="drawRoundBadge">Tur 1 / 3</span>
+      <div class="timer-badge" id="drawTimer">15</div>
+    </div>
+
+    <p style="font-size: 13px; color: var(--text-muted);">Çizmen Gereken Gizli Kelime:</p>
+    <div class="word-highlight" id="targetWord">---</div>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+      Çizimin tur sonunda <b id="partnerGuesserName" style="color: #fff;">...</b> adlı oyuncuya gidecek!
+    </p>
+
+    <!-- Canvas -->
+    <div class="canvas-wrapper">
+      <canvas id="canvas" width="440" height="290"></canvas>
+    </div>
+
+    <!-- Çizim Araçları (Renk & Boyut) -->
+    <div class="tools-bar">
+      <div class="color-palette">
+        <div class="color-swatch active" style="background:#000000" onclick="setColor('#000000', this)"></div>
+        <div class="color-swatch" style="background:#ef4444" onclick="setColor('#ef4444', this)"></div>
+        <div class="color-swatch" style="background:#3b82f6" onclick="setColor('#3b82f6', this)"></div>
+        <div class="color-swatch" style="background:#10b981" onclick="setColor('#10b981', this)"></div>
+        <div class="color-swatch" style="background:#f59e0b" onclick="setColor('#f59e0b', this)"></div>
+        <div class="color-swatch" style="background:#8b5cf6" onclick="setColor('#8b5cf6', this)"></div>
+        <div class="color-swatch" style="background:#ffffff; border: 1px solid #94a3b8;" onclick="setColor('#ffffff', this)" title="Silgi"></div>
+      </div>
+
+      <div class="size-buttons">
+        <div class="size-btn" onclick="setSize(3, this)">İnce</div>
+        <div class="size-btn active" onclick="setSize(6, this)">Orta</div>
+        <div class="size-btn" onclick="setSize(12, this)">Kalın</div>
+      </div>
+
+      <button class="btn-danger btn-sm" onclick="clearCanvas()">Temizle</button>
+    </div>
+
+    <button class="btn-accent" style="margin-top: 14px;" onclick="finishDrawingEarly()">
+      ✓ Çizimi Tamamladım
+    </button>
+  </div>
+
+  <!-- 4. TAHMİN AŞAMASI EKRANI -->
+  <div id="screenGuess" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="guessRoundBadge">Tur 1 / 3</span>
+      <div class="timer-badge" id="guessTimer">20</div>
+    </div>
+
+    <h2>🔄 Kağıtlar Takas Edildi!</h2>
+    <p class="sub"><b id="artistName" style="color: var(--accent);">Bir arkadaşının</b> çizimini dikkatle incele ve tahmin et:</p>
+
+    <img id="receivedDrawingImg" class="preview-img" alt="Arkadaşının Çizimi">
+
+    <div id="guessInputArea">
+      <input type="text" id="guessInput" placeholder="Sence bu çizim ne? (Enter)">
+      <button class="btn-accent" style="margin-top: 10px;" onclick="handleSendGuess()">
+        Tahmini Gönder
+      </button>
+    </div>
+
+    <!-- Gartic Phone mantığı: Tahmini yazınca bekletme kartı -->
+    <div id="guessWaitArea" class="waiting-box hidden">
+      ⏳ <strong>Tahminin alındı!</strong><br>
+      Gartic Phone modunda sonuçlar herkes tahminini tamamlayınca sergilenecek...
+    </div>
+  </div>
+
+  <!-- 5. GARTIC PHONE SERGİ (REVEAL) EKRANI -->
+  <div id="screenReveal" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="revealRoundBadge">Tur 1 Sonuçları</span>
+      <div class="timer-badge" id="revealTimer">10</div>
+    </div>
+
+    <h2>🎭 Tur Sonu Sergisi</h2>
+    <p class="sub">Kimin ne çizdiğine ve yapılan tahminlere göz atın!</p>
+
+    <div class="reveal-scroll" id="revealCardsContainer">
+      <!-- Dinamik çizim kartları eklenecek -->
+    </div>
+
+    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+      Sonraki tura geri sayılıyor...
+    </p>
+  </div>
+
+  <!-- 6. OYUN SONU & PODYUM EKRANI -->
+  <div id="screenGameOver" class="card hidden">
+    <h2>🏆 Oyun Bitti!</h2>
+    <p class="sub">Tüm turlar tamamlandı. İşte odanın şampiyonları:</p>
+
+    <ul class="leaderboard-list" id="finalPodiumList"></ul>
+
+    <button class="btn-accent" id="returnLobbyBtn" style="margin-top: 14px;" onclick="handleReturnToLobby()">
+      🔄 Lobiye Geri Dön
+    </button>
+  </div>
+
+  <script>
+    const socket = io();
+
+    let myName = '';
+    let currentRoomCode = '';
+    let isRoomHost = false;
+
+    // Sunucu Ağ IP bilgisini çek
+    fetch('/api/info')
+      .then(r => r.json())
+      .then(info => {
+        document.getElementById('localIpSpan').innerText = `http://${info.localIp}:${info.port}`;
+      })
+      .catch(() => {
+        document.getElementById('localIpSpan').innerText = window.location.origin;
+      });
+
+    // Ekran Geçiş Yardımcısı
+    function showScreen(screenId) {
+      const screens = ['screenEntry', 'screenLobby', 'screenDraw', 'screenGuess', 'screenReveal', 'screenGameOver'];
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === screenId) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        }
+      });
+    }
+
+    // 1. Oda Oluşturma & Katılma
+    function handleCreateRoom() {
+      const name = document.getElementById('playerNameInput').value.trim();
+      if (!name) {
+        alert('Lütfen bir takma ad girin!');
+        return;
+      }
+      myName = name;
+      socket.emit('createRoom', { name, rounds: 3, drawTime: 15 });
+    }
+
+    function handleJoinRoom() {
+      const name = document.getElementById('playerNameInput').value.trim();
+      const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+
+      if (!name) {
+        alert('Lütfen bir takma ad girin!');
+        return;
+      }
+      if (!code || code.length !== 4) {
+        alert('Lütfen 4 haneli geçerli bir oda kodu girin!');
+        return;
+      }
+      myName = name;
+      socket.emit('joinRoom', { name, code });
+    }
+
+    socket.on('roomCreated', (data) => {
+      currentRoomCode = data.code;
+      isRoomHost = true;
+      document.getElementById('displayRoomCode').innerText = data.code;
+      showScreen('screenLobby');
+    });
+
+    socket.on('roomJoined', (data) => {
+      currentRoomCode = data.code;
+      isRoomHost = false;
+      document.getElementById('displayRoomCode').innerText = data.code;
+      // Host olmayanlar ayarları değiştiremez
+      document.getElementById('selectRounds').disabled = true;
+      document.getElementById('selectDrawTime').disabled = true;
+      document.getElementById('startBtn').classList.add('hidden');
+      showScreen('screenLobby');
+    });
+
+    function copyRoomCode() {
+      if (!currentRoomCode) return;
+      navigator.clipboard.writeText(currentRoomCode).then(() => {
+        alert(`Oda Kodu Kopyalandı: ${currentRoomCode}`);
+      });
+    }
+
+    function copyInviteLink() {
+      if (!currentRoomCode) return;
+      const inviteUrl = `${window.location.origin}?room=${currentRoomCode}`;
+      navigator.clipboard.writeText(inviteUrl).then(() => {
+        alert(`🎉 Davet Linki Kopyalandı!\nArkadaşına bu linki gönderebilirsin:\n${inviteUrl}`);
+      });
+    }
+
+    // URL'de ?room=KOD varsa otomatik kutuya yaz
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const roomParam = params.get('room');
+      if (roomParam) {
+        const input = document.getElementById('roomCodeInput');
+        if (input) input.value = roomParam.toUpperCase();
+      }
+    });
+
+    function handleSettingChange() {
+      if (!isRoomHost) return;
+      const rounds = document.getElementById('selectRounds').value;
+      const drawTime = document.getElementById('selectDrawTime').value;
+      socket.emit('updateRoomSettings', { rounds, drawTime });
+    }
+
+    function handleStartGame() {
+      if (!isRoomHost) return;
+      socket.emit('startGame');
+    }
+
+    // Oda Durumu Güncellemesi
+    socket.on('roomUpdate', (room) => {
+      currentRoomCode = room.code;
+      document.getElementById('displayRoomCode').innerText = room.code;
+      document.getElementById('lobbyPlayerCount').innerText = room.players.length;
+
+      // Host kontrolü
+      const me = room.players.find(p => p.id === socket.id);
+      isRoomHost = me ? me.isHost : false;
+
+      // Ayar kutularını senkronize et
+      document.getElementById('selectRounds').value = room.totalRounds;
+      document.getElementById('selectDrawTime').value = room.drawTime;
+      document.getElementById('selectRounds').disabled = !isRoomHost;
+      document.getElementById('selectDrawTime').disabled = !isRoomHost;
+
+      // Oyuncu listesini oluştur
+      const playerListEl = document.getElementById('lobbyPlayerList');
+      playerListEl.innerHTML = room.players.map(p => `
+        <li class="player-item">
+          <span>${p.isHost ? '👑 ' : '👤 '}<b>${p.name}</b> ${p.id === socket.id ? '(Sen)' : ''}</span>
+          <span class="player-badge">${p.score} Puan</span>
+        </li>
+      `).join('');
+
+      const hintEl = document.getElementById('lobbyStatusHint');
+      const startBtn = document.getElementById('startBtn');
+
+      if (isRoomHost) {
+        startBtn.classList.remove('hidden');
+        if (room.players.length < 2) {
+          hintEl.innerText = 'En az 2 kişi bekleniyor...';
+          startBtn.disabled = true;
+        } else {
+          hintEl.innerText = 'Başlamaya hazır!';
+          hintEl.style.color = '#10b981';
+          startBtn.disabled = false;
+        }
+      } else {
+        startBtn.classList.add('hidden');
+        hintEl.innerText = 'Oda kurucusunun başlatması bekleniyor...';
+      }
+
+      if (room.status === 'lobby') {
+        showScreen('screenLobby');
+      }
+    });
+
+    socket.on('gameError', (msg) => {
+      alert('⚠️ ' + msg);
+    });
+
+    socket.on('playerLeft', (data) => {
+      console.log(`${data.name} odadan ayrıldı.`);
+    });
+
+    // 2. Çizim Aşaması
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let currentColor = '#000000';
+    let currentLineWidth = 6;
+
+    function initCanvas() {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = currentLineWidth;
+    }
+    initCanvas();
+
+    function setColor(color, elem) {
+      currentColor = color;
+      ctx.strokeStyle = color;
+      document.querySelectorAll('.color-swatch').forEach(e => e.classList.remove('active'));
+      if (elem) elem.classList.add('active');
+    }
+
+    function setSize(size, elem) {
+      currentLineWidth = size;
+      ctx.lineWidth = size;
+      document.querySelectorAll('.size-btn').forEach(e => e.classList.remove('active'));
+      if (elem) elem.classList.add('active');
+    }
+
+    function clearCanvas() {
+      initCanvas();
+    }
+
+    function getCanvasCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+
+    function startDraw(e) {
+      e.preventDefault();
+      isDrawing = true;
+      const { x, y } = getCanvasCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+    function moveDraw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const { x, y } = getCanvasCoords(e);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+    function stopDraw() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', stopDraw);
+
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
+
+    socket.on('drawingStart', (data) => {
+      showScreen('screenDraw');
+      document.getElementById('drawRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
+      document.getElementById('drawTimer').innerText = data.duration;
+      document.getElementById('targetWord').innerText = data.word;
+      document.getElementById('partnerGuesserName').innerText = data.partnerName;
+      initCanvas();
+    });
+
+    function finishDrawingEarly() {
+      const dataUrl = canvas.toDataURL('image/png');
+      socket.emit('submitDrawing', dataUrl);
+      alert('Çizimin gönderildi! Diğerlerinin bitirmesi bekleniyor...');
+    }
+
+    socket.on('requestDrawings', () => {
+      const dataUrl = canvas.toDataURL('image/png');
+      socket.emit('submitDrawing', dataUrl);
+    });
+
+    // 3. Tahmin Aşaması (Gartic Phone)
+    socket.on('guessingStart', (data) => {
+      showScreen('screenGuess');
+      document.getElementById('guessRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
+      document.getElementById('guessTimer').innerText = data.duration;
+      document.getElementById('artistName').innerText = data.artistName + ' adlı arkadaşının';
+      document.getElementById('receivedDrawingImg').src = data.drawing;
+
+      document.getElementById('guessInputArea').classList.remove('hidden');
+      document.getElementById('guessWaitArea').classList.add('hidden');
+      document.getElementById('guessInput').value = '';
+      document.getElementById('guessInput').disabled = false;
+      document.getElementById('guessInput').focus();
+    });
+
+    document.getElementById('guessInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSendGuess();
+    });
+
+    function handleSendGuess() {
+      const input = document.getElementById('guessInput');
+      const guess = input.value.trim();
+      if (!guess) return;
+
+      socket.emit('submitGuess', guess);
+      input.disabled = true;
+    }
+
+    socket.on('guessReceived', (data) => {
+      document.getElementById('guessInputArea').classList.add('hidden');
+      document.getElementById('guessWaitArea').classList.remove('hidden');
+    });
+
+    // 4. Sayaç Güncellemeleri
+    socket.on('timerTick', (timeLeft) => {
+      const dt = document.getElementById('drawTimer');
+      const gt = document.getElementById('guessTimer');
+      const rt = document.getElementById('revealTimer');
+      if (dt) dt.innerText = timeLeft;
+      if (gt) gt.innerText = timeLeft;
+      if (rt) rt.innerText = timeLeft;
+    });
+
+    // 5. Sergi / Teşhir Aşaması 
+    socket.on('revealStart', (data) => {
+      showScreen('screenReveal');
+      document.getElementById('revealRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds} Sonu`;
+      document.getElementById('revealTimer').innerText = '10';
+
+      const container = document.getElementById('revealCardsContainer');
+      container.innerHTML = data.results.map(r => `
+        <div class="reveal-card">
+          <div class="reveal-header">
+            <span>🎨 Çizen: <b>${r.drawerName}</b> (Kelime: <b style="color:var(--success)">${r.word}</b>)</span>
+          </div>
+          <img src="${r.drawing}" class="reveal-img" alt="Çizim">
+          <div class="reveal-footer">
+            <span>🤔 Tahmin: <b>${r.guesserName}</b> &rarr; "<i>${r.guess}</i>"</span>
+            <span class="status-badge ${r.isCorrect ? 'badge-correct' : 'badge-wrong'}">
+              ${r.isCorrect ? '✅ DOĞRU (+100)' : '❌ YANLIŞ'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    // 6. Oyun Sonu & Podyum
+    socket.on('gameOver', (data) => {
+      showScreen('screenGameOver');
+      const podiumList = document.getElementById('finalPodiumList');
+
+      podiumList.innerHTML = data.podium.map((p, idx) => {
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '👤';
+        return `
+          <li class="leaderboard-item">
+            <span>${medal} ${idx + 1}. <b>${p.name}</b> ${p.id === socket.id ? '(Sen)' : ''}</span>
+            <span style="color: var(--accent); font-weight: 800;">${p.score} Puan</span>
+          </li>
+        `;
+      }).join('');
+
+      const returnBtn = document.getElementById('returnLobbyBtn');
+      if (isRoomHost) {
+        returnBtn.classList.remove('hidden');
+      } else {
+        returnBtn.classList.add('hidden');
+      }
+    });
+
+    function handleReturnToLobby() {
+      socket.emit('returnToLobby');
+    }
+  </script>
+</body>
+</html>
