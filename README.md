@@ -1,8 +1,8 @@
-# ⚡ Rush Draw Swap
+# Rush Draw Swap
 
 Arkadaşlarınızla oynayabileceğiniz, eşli çizim ve tahmin oyunu.
 
-## 🎮 Özellikler
+ Özellikler
 
 - 🔑 **Özel Oda & Kod Sistemi:** 4 haneli kodla sadece arkadaşlarınızın girebileceği özel odalar.
 - ⏱️ **Tur & Süre Ayarı:** Oda kurucusu tur sayısını (1, 3, 5) ve çizim süresini (10s, 15s, 20s, 30s) seçebilir.
