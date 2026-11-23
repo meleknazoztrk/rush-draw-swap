@@ -11,3 +11,4 @@ Arkadaşlarınızla oynayabileceğiniz, eşli çizim ve tahmin oyunu.
 - 👥 **Esnek Oyuncu Sayısı:** Dairesel takas (Ring Swap) sayesinde 2, 3, 4, 5+ kişi oynayabilir.
 - 🌐 **Dünya Çapında Erişim:** Cloudflare Tunnel entegrasyonu ile dünyanın her yerinden arkadaşlarınızla oynama imkanı.
 
+Test edebilmek için https://rush-draw-swap.onrender.com/ 
