@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0221">
-  <title>Rush Swap - Siberpunk Eşli Çizim & Tahmin</title>
+  <title>Rush Swap - Eşli Çizim & Tahmin Oyunu</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
     /* ========================================================
@@ -27,6 +27,7 @@
       --border: #2e0854;
       --success: #10b981;
       --danger: #f43f5e;
+      --warning: #f59e0b;
     }
 
     * {
@@ -57,11 +58,11 @@
     }
 
     .card {
-      background: rgba(21, 5, 46, 0.92);
+      background: rgba(21, 5, 46, 0.94);
       backdrop-filter: blur(12px);
       width: 100%;
-      max-width: 480px;
-      padding: 24px 20px;
+      max-width: 500px;
+      padding: 22px 18px;
       border-radius: 22px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.15);
       border: 1px solid var(--card-border);
@@ -78,20 +79,19 @@
       background: linear-gradient(135deg, #f0abfc, #d946ef, #38bdf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       text-shadow: 0 0 15px rgba(217, 70, 239, 0.3);
     }
-    p.sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
+    p.sub { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4; }
 
-    /* Giriş Kutuları */
     input[type="text"], select {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 14px;
       border-radius: 12px;
       border: 2px solid var(--border);
       background: #090014;
       color: #fff;
-      font-size: 16px;
+      font-size: 15px;
       outline: none;
       transition: all 0.2s;
     }
@@ -106,11 +106,11 @@
       justify-content: center;
       gap: 6px;
       width: 100%;
-      min-height: 46px;
+      min-height: 44px;
       padding: 10px 16px;
       border-radius: 12px;
       border: none;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       user-select: none;
@@ -145,25 +145,16 @@
       border-color: var(--accent);
     }
 
-    .btn-cyan {
-      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-      color: #ffffff;
-      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
-    }
-    .btn-cyan:hover {
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
-    }
-
     .btn-danger { background: var(--danger); color: #fff; }
     .btn-danger:hover { background: #e11d48; }
 
-    .btn-sm { width: auto; min-height: 36px; padding: 6px 12px; font-size: 12px; }
+    .btn-sm { width: auto; min-height: 32px; padding: 4px 10px; font-size: 12px; }
 
     /* Ayırıcı */
     .divider {
       display: flex;
       align-items: center;
-      margin: 16px 0;
+      margin: 14px 0;
       color: #9333ea;
       font-size: 11px;
       font-weight: 700;
@@ -181,11 +172,11 @@
     /* Oda Kodu Kutusu */
     .code-box {
       background: #090014;
-      padding: 12px 14px;
+      padding: 10px 14px;
       border-radius: 14px;
       border: 2px dashed var(--accent);
       box-shadow: inset 0 0 15px rgba(217, 70, 239, 0.15);
-      margin: 12px 0;
+      margin: 10px 0;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -193,17 +184,42 @@
       gap: 8px;
     }
     .code-box .code-text {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
       letter-spacing: 4px;
       color: #f0abfc;
       text-shadow: 0 0 10px rgba(217, 70, 239, 0.6);
     }
 
+    /* Mod Seçimi & Ayarlar */
+    .mode-select-box {
+      background: #090014;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      text-align: left;
+    }
+    .mode-select-box label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .mode-description {
+      font-size: 11px;
+      color: #38bdf8;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+
     .room-settings {
       display: flex;
       gap: 10px;
-      margin: 14px 0;
+      margin: 10px 0;
       text-align: left;
     }
     .setting-group { flex: 1; }
@@ -212,8 +228,8 @@
     .player-list-container {
       background: #090014;
       border-radius: 12px;
-      padding: 12px;
-      margin: 14px 0;
+      padding: 10px 12px;
+      margin: 12px 0;
       text-align: left;
       border: 1px solid var(--card-border);
     }
@@ -223,14 +239,14 @@
       flex-direction: column;
       gap: 6px;
       margin-top: 8px;
-      max-height: 150px;
+      max-height: 140px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
     .player-item {
       background: #190538;
       border: 1px solid #3b136f;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -239,7 +255,7 @@
     }
     .player-badge {
       font-size: 10px;
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 6px;
       background: rgba(217, 70, 239, 0.2);
       border: 1px solid rgba(217, 70, 239, 0.4);
@@ -263,11 +279,11 @@
       color: #e9d5ff;
     }
     .timer-badge {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       color: #38bdf8;
       background: #090014;
-      padding: 3px 14px;
+      padding: 3px 12px;
       border-radius: 10px;
       border: 2px solid #0284c7;
       box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
@@ -275,24 +291,24 @@
       line-height: 1.2;
     }
 
-    /* Çizim Tuvali */
+    /* Çizim Tuvali & Kilitli Bölgeler */
     .word-highlight {
       color: #38bdf8;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       letter-spacing: 0.5px;
-      margin: 4px 0 8px;
+      margin: 4px 0 6px;
       text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
     }
     .canvas-wrapper {
       background: #ffffff;
       border-radius: 12px;
       overflow: hidden;
-      margin: 10px auto;
+      margin: 8px auto;
       width: 100%;
       aspect-ratio: 4 / 3;
-      max-width: 440px;
-      max-height: 290px;
+      max-width: 400px;
+      max-height: 300px;
       box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
       border: 2px solid var(--accent);
       position: relative;
@@ -306,6 +322,28 @@
       cursor: crosshair;
     }
 
+    /* Kilitli Yarı Katmanı (Overlay) */
+    .canvas-lock-overlay {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(13, 2, 33, 0.55);
+      backdrop-filter: blur(2px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fdf4ff;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 1px;
+      pointer-events: none;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      z-index: 5;
+    }
+    .lock-left { left: 0; width: 50%; border-right: 2px dashed #d946ef; }
+    .lock-right { right: 0; width: 50%; border-left: 2px dashed #d946ef; }
+
     /* Çizim Araçları */
     .tools-bar {
       display: flex;
@@ -315,9 +353,9 @@
       gap: 6px;
       background: #090014;
       border: 1px solid var(--border);
-      padding: 8px 10px;
+      padding: 6px 10px;
       border-radius: 12px;
-      margin-top: 8px;
+      margin-top: 6px;
     }
     .color-palette {
       display: flex;
@@ -325,8 +363,8 @@
       align-items: center;
     }
     .color-swatch {
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
@@ -343,9 +381,9 @@
       gap: 4px;
     }
     .size-btn {
-      min-width: 32px;
-      height: 28px;
-      padding: 0 6px;
+      min-width: 30px;
+      height: 26px;
+      padding: 0 5px;
       border-radius: 6px;
       background: #250947;
       color: #e9d5ff;
@@ -364,18 +402,18 @@
       box-shadow: 0 0 8px rgba(217, 70, 239, 0.4);
     }
 
-    /* Tahmin Aşaması */
+    /* Tahmin & Bilgi Kartları */
     .preview-img {
       width: 100%;
-      max-width: 440px;
+      max-width: 400px;
       aspect-ratio: 4 / 3;
-      max-height: 280px;
+      max-height: 260px;
       border-radius: 12px;
       background: #ffffff;
       object-fit: contain;
       border: 2px solid var(--accent);
       box-shadow: 0 0 15px rgba(217, 70, 239, 0.25);
-      margin: 10px auto;
+      margin: 8px auto;
       display: block;
     }
     .waiting-box {
@@ -383,12 +421,67 @@
       border: 1px solid var(--accent);
       padding: 14px;
       border-radius: 12px;
-      margin-top: 12px;
+      margin-top: 10px;
       color: #f0abfc;
       font-weight: 600;
       font-size: 13px;
-      line-height: 1.4;
+      line-height: 1.45;
       box-shadow: 0 0 15px rgba(217, 70, 239, 0.2);
+    }
+
+    /* Kör Oylama (Blind Voting) Stilleri */
+    .voting-scroll {
+      max-height: 380px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 10px 0;
+      text-align: left;
+    }
+    .voting-card {
+      background: #090014;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    .voting-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #f0abfc;
+    }
+    .voting-img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #3b136f;
+    }
+    .star-rating {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .star-btn {
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s;
+      color: #4a1982;
+      user-select: none;
+    }
+    .star-btn.active, .star-btn:hover {
+      color: #facc15;
+      text-shadow: 0 0 10px #eab308;
+      transform: scale(1.2);
     }
 
     /* Sergi Aşaması */
@@ -399,9 +492,8 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin: 12px 0;
+      margin: 10px 0;
       text-align: left;
-      padding-right: 2px;
     }
     .reveal-card {
       background: #090014;
@@ -456,12 +548,12 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin: 14px 0;
+      margin: 12px 0;
     }
     .leaderboard-item {
       background: #090014;
       border: 1px solid var(--card-border);
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -477,36 +569,29 @@
     .leaderboard-item:nth-child(3) { border-left: 4px solid #a855f7; }
 
     .network-info-box {
-      margin-top: 14px;
+      margin-top: 12px;
       background: rgba(217, 70, 239, 0.05);
       border: 1px solid rgba(217, 70, 239, 0.2);
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 10px;
       font-size: 11px;
       color: #e9d5ff;
       text-align: left;
-      line-height: 1.45;
+      line-height: 1.4;
     }
     .network-info-box strong { color: #fdf4ff; }
-
-    @media (max-width: 380px) {
-      .card { padding: 18px 14px; }
-      h2 { font-size: 20px; }
-      .color-swatch { width: 22px; height: 22px; }
-      .tools-bar { justify-content: center; }
-    }
   </style>
 </head>
 <body>
 
-  <!-- 1. GİRİŞ & ODA SEÇİM EKRANI -->
+  <!-- 1. GİRİŞ EKRANI -->
   <div id="screenEntry" class="card">
     <h2>⚡ Rush Swap</h2>
-    <p class="sub">15 Saniyede Karala, Takas Et ve Tahmin Et! (Siberpunk Modu)</p>
+    <p class="sub">15 Saniyede Karala, Takas Et ve Tahmin Et!</p>
 
     <div style="text-align: left; margin-bottom: 12px;">
       <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Takma Adın:</label>
-      <input type="text" id="playerNameInput" placeholder="Örn: SiberNinja" maxlength="15" autocomplete="off" autocorrect="off">
+      <input type="text" id="playerNameInput" placeholder="Örn: Ressam" maxlength="15" autocomplete="off" autocorrect="off">
     </div>
 
     <button class="btn-accent" onclick="handleCreateRoom()">
@@ -526,7 +611,7 @@
     </div>
   </div>
 
-  <!-- 2. ODA LOBİSİ & BEKLEME EKRANI -->
+  <!-- 2. ODA LOBİSİ & MOD SEÇİMİ -->
   <div id="screenLobby" class="card hidden">
     <h2>Lobi Odası</h2>
     <p class="sub">Arkadaşlarına bu kodu veya linki gönder, odaya sadece davetliler girebilir!</p>
@@ -542,7 +627,20 @@
       </div>
     </div>
 
-    <!-- Host Ayarları -->
+    <!-- OYUN MODU SEÇİCİ (Host Kontrolünde) -->
+    <div class="mode-select-box">
+      <label>🎮 Oyun Modu:</label>
+      <select id="selectGameMode" onchange="handleSettingChange()">
+        <option value="classic" selected>⚡ Klasik Rush (Eşli Takas & Tahmin)</option>
+        <option value="complete">🧩 Resmi Tamamla (Yarım Şablon & Kör Puanlama)</option>
+        <option value="coop">🤝 Eşli Yarım Çizim (Co-op Split)</option>
+      </select>
+      <div class="mode-description" id="modeDescriptionText">
+        Kelimeni çiz, partnerinle takas et ve gelen çizimi gizlice tahmin et!
+      </div>
+    </div>
+
+    <!-- Host Ayarları (Tur & Süre) -->
     <div class="room-settings">
       <div class="setting-group">
         <label>Tur Sayısı:</label>
@@ -555,8 +653,8 @@
       <div class="setting-group">
         <label>Çizim Süresi:</label>
         <select id="selectDrawTime" onchange="handleSettingChange()">
-          <option value="10">10 Saniye ⚡ (Ultra Rush)</option>
-          <option value="15" selected>15 Saniye (Normal)</option>
+          <option value="10">10 Saniye ⚡ (Rush!)</option>
+          <option value="15" selected>15 Saniye</option>
           <option value="20">20 Saniye</option>
           <option value="30">30 Saniye</option>
         </select>
@@ -577,22 +675,30 @@
     </button>
   </div>
 
-  <!-- 3. ÇİZİM AŞAMASI EKRANI -->
+  <!-- 3. EVRENSEL ÇİZİM AŞAMASI EKRANI -->
   <div id="screenDraw" class="card hidden">
     <div class="badge-bar">
       <span class="round-badge" id="drawRoundBadge">Tur 1 / 3</span>
       <div class="timer-badge" id="drawTimer">15</div>
     </div>
 
-    <p style="font-size: 12px; color: var(--text-muted);">Çizmen Gereken Gizli Kelime:</p>
+    <p style="font-size: 12px; color: var(--text-muted);" id="drawTaskHint">Çizmen Gereken Kelime:</p>
     <div class="word-highlight" id="targetWord">---</div>
-    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
-      Çizimin tur sonunda <b id="partnerGuesserName" style="color: #fdf4ff;">...</b> adlı oyuncuya gidecek!
+    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;" id="partnerHintText">
+      Partnerin: <b id="partnerGuesserName" style="color: #fdf4ff;">...</b>
     </p>
 
-    <!-- Canvas Wrapper -->
-    <div class="canvas-wrapper">
+    <!-- Canvas Wrapper (Kilitleme Katmanları Dahil) -->
+    <div class="canvas-wrapper" id="canvasWrapper">
       <canvas id="canvas" width="400" height="300"></canvas>
+      <div class="canvas-lock-overlay lock-left hidden" id="lockOverlayLeft">
+        <span>🔒 KİLİTLİ</span>
+        <span style="font-size: 10px; font-weight: normal; margin-top: 4px;">Bu yarıya çizilemez</span>
+      </div>
+      <div class="canvas-lock-overlay lock-right hidden" id="lockOverlayRight">
+        <span>🔒 KİLİTLİ</span>
+        <span style="font-size: 10px; font-weight: normal; margin-top: 4px;">Eşinin çizim alanı</span>
+      </div>
     </div>
 
     <!-- Çizim Araçları -->
@@ -621,7 +727,7 @@
     </button>
   </div>
 
-  <!-- 4. TAHMİN AŞAMASI EKRANI -->
+  <!-- 4. KLASİK MOD: TAHMİN AŞAMASI EKRANI -->
   <div id="screenGuess" class="card hidden">
     <div class="badge-bar">
       <span class="round-badge" id="guessRoundBadge">Tur 1 / 3</span>
@@ -642,17 +748,17 @@
 
     <div id="guessWaitArea" class="waiting-box hidden">
       ⏳ <strong>Tahminin alındı!</strong><br>
-      Gartic Phone modunda sonuçlar herkes tahminini bitirince sergilenecek...
+      Sonuçlar herkes tahminini bitirince sergilenecek...
     </div>
   </div>
 
-  <!-- 5. SERGİ (REVEAL) EKRANI -->
+  <!-- 5. KLASİK MOD: SERGİ (REVEAL) EKRANI -->
   <div id="screenReveal" class="card hidden">
     <div class="badge-bar">
       <span class="round-badge" id="revealRoundBadge">Tur 1 Sonu</span>
       <div style="display: flex; align-items: center; gap: 8px;">
         <div class="timer-badge" id="revealTimer">10</div>
-        <button class="btn-accent btn-sm" onclick="handleSkipReveal()" style="padding: 4px 10px; font-size: 11px;">⏭️ Atla</button>
+        <button class="btn-accent btn-sm" onclick="handleSkipReveal()">⏭️ Atla</button>
       </div>
     </div>
 
@@ -666,14 +772,88 @@
     </button>
   </div>
 
-  <!-- 6. OYUN SONU & PODYUM EKRANI -->
+  <!-- 6. MOD 1: KÖR PUANLAMA (BLIND VOTING) EKRANI -->
+  <div id="screenCompleteVoting" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="votingRoundBadge">Kör Oylama</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="timer-badge" id="votingTimer">25</div>
+        <button class="btn-accent btn-sm" onclick="handleSkipReveal()">⏭️ Atla</button>
+      </div>
+    </div>
+
+    <h2>⭐ Resimleri Puanla</h2>
+    <p class="sub">Çizenlerin kimliği gizlidir! Şablonu en iyi tamamlayan eserlere 1-5 yıldız ver:</p>
+
+    <div class="voting-scroll" id="votingCardsContainer"></div>
+
+    <button class="btn-accent" style="margin-top: 10px;" onclick="handleSkipReveal()">
+      ⏭️ Oylamayı Tamamla / Atla
+    </button>
+  </div>
+
+  <!-- 7. MOD 1: KÖR PUANLAMA SONUÇLARI (REVEAL) EKRANI -->
+  <div id="screenCompleteReveal" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="completeRevealRoundBadge">Oylama Sonuçları</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="timer-badge" id="completeRevealTimer">10</div>
+        <button class="btn-accent btn-sm" onclick="handleSkipReveal()">⏭️ Atla</button>
+      </div>
+    </div>
+
+    <h2>🏆 Kim Ne Çizmiş?</h2>
+    <p class="sub">Anonim eserlerin arkasındaki gerçek çizerler ve aldıkları yıldızlar:</p>
+
+    <div class="reveal-scroll" id="completeRevealCardsContainer"></div>
+
+    <button class="btn-accent" style="margin-top: 10px;" onclick="handleSkipReveal()">
+      ⏭️ Beklemeden Hemen Sonraki Tura Geç
+    </button>
+  </div>
+
+  <!-- 8. MOD 2: CO-OP BEKLEME EKRANI (Eşini Beklerken) -->
+  <div id="screenCoopWait" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="coopWaitBadge">Eşli Çizim</span>
+      <div class="timer-badge" id="coopWaitTimer">15</div>
+    </div>
+
+    <h2>🤝 Eşin Çizim Yapıyor</h2>
+    <p class="sub" id="coopWaitHint">Partnerin çizimini tamamlarken bekle...</p>
+
+    <div class="waiting-box" id="coopWaitContent" style="margin: 20px 0;">
+      ⏳ Eşin Canvas'ın yarısını çiziyor. Sıra sana geldiğinde resmi tamamlayacaksın!
+    </div>
+  </div>
+
+  <!-- 9. MOD 2: CO-OP SERGİ (REVEAL) EKRANI -->
+  <div id="screenCoopReveal" class="card hidden">
+    <div class="badge-bar">
+      <span class="round-badge" id="coopRevealRoundBadge">Ortak Eserler</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="timer-badge" id="coopRevealTimer">10</div>
+        <button class="btn-accent btn-sm" onclick="handleSkipReveal()">⏭️ Atla</button>
+      </div>
+    </div>
+
+    <h2>🎨 Takımların Ortak Eserleri</h2>
+    <p class="sub">İki eşin yarım yarım birleştirerek ortaya çıkardığı harika çizimler:</p>
+
+    <div class="reveal-scroll" id="coopRevealCardsContainer"></div>
+
+    <button class="btn-accent" style="margin-top: 10px;" onclick="handleSkipReveal()">
+      ⏭️ Beklemeden Hemen Sonraki Tura Geç
+    </button>
+  </div>
+
+  <!-- 10. OYUN SONU & PODYUM EKRANI -->
   <div id="screenGameOver" class="card hidden">
     <h2>🏆 Oyun Bitti!</h2>
     <p class="sub">Tüm turlar tamamlandı. İşte odanın şampiyonları:</p>
 
     <ul class="leaderboard-list" id="finalPodiumList"></ul>
 
-    <!-- Lobiye Geri Dön Butonu (Herkese Açık ve Garantili) -->
     <button class="btn-accent" id="returnLobbyBtn" style="margin-top: 14px;" onclick="handleReturnToLobby()">
       🔄 Lobiye Geri Dön
     </button>
@@ -685,10 +865,26 @@
     let myName = '';
     let currentRoomCode = '';
     let isRoomHost = false;
+    let currentGameMode = 'classic';
+
+    // Çizim Kısıtlama Durumu: 'all' (Tüm tuval) | 'left' (Sadece Sol x < 200) | 'right' (Sadece Sağ x >= 200)
+    let currentDrawingConstraint = 'all';
+    let currentTemplateId = null;
+    let currentBaseDrawingData = null; // Co-op Aşama 2'de sol tarafın kalıcı resmi
+
+    const MODE_DESCRIPTIONS = {
+      classic: 'Kelimeni çiz, partnerinle takas et ve gelen çizimi gizlice tahmin et!',
+      complete: 'Sol taraftaki kilitli şablonun sağ yarısını tamamla, herkesin çizimine 1-5 yıldız ver!',
+      coop: '2 kişilik takım! Eşin sol yarıyı, sen sağ yarıyı çizerek ortak bir eser yaratın!'
+    };
 
     // Ekran Geçiş Yardımcısı
     function showScreen(screenId) {
-      const screens = ['screenEntry', 'screenLobby', 'screenDraw', 'screenGuess', 'screenReveal', 'screenGameOver'];
+      const screens = [
+        'screenEntry', 'screenLobby', 'screenDraw', 'screenGuess',
+        'screenReveal', 'screenCompleteVoting', 'screenCompleteReveal',
+        'screenCoopWait', 'screenCoopReveal', 'screenGameOver'
+      ];
       screens.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -699,7 +895,10 @@
       window.scrollTo(0, 0);
     }
 
-    // 1. Oda Oluşturma & Katılma
+    // ========================================================
+    // 1. ODA YÖNETİMİ & LOBİ
+    // ========================================================
+
     function handleCreateRoom() {
       const name = document.getElementById('playerNameInput').value.trim();
       if (!name) {
@@ -707,7 +906,7 @@
         return;
       }
       myName = name;
-      socket.emit('createRoom', { name, rounds: 3, drawTime: 15 });
+      socket.emit('createRoom', { name, rounds: 3, drawTime: 15, gameMode: 'classic' });
     }
 
     function handleJoinRoom() {
@@ -737,6 +936,7 @@
       currentRoomCode = data.code;
       isRoomHost = false;
       document.getElementById('displayRoomCode').innerText = data.code;
+      document.getElementById('selectGameMode').disabled = true;
       document.getElementById('selectRounds').disabled = true;
       document.getElementById('selectDrawTime').disabled = true;
       document.getElementById('startBtn').classList.add('hidden');
@@ -766,7 +966,6 @@
       }
     }
 
-    // URL'de ?room=KOD parametresi varsa otomatik doldur
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const roomParam = params.get('room');
@@ -778,9 +977,12 @@
 
     function handleSettingChange() {
       if (!isRoomHost) return;
+      const gameMode = document.getElementById('selectGameMode').value;
       const rounds = document.getElementById('selectRounds').value;
       const drawTime = document.getElementById('selectDrawTime').value;
-      socket.emit('updateRoomSettings', { rounds, drawTime });
+
+      document.getElementById('modeDescriptionText').innerText = MODE_DESCRIPTIONS[gameMode] || '';
+      socket.emit('updateRoomSettings', { gameMode, rounds, drawTime });
     }
 
     function handleStartGame() {
@@ -788,7 +990,6 @@
       socket.emit('startGame');
     }
 
-    // İstenmeyen Kişiyi Odadan Atma (Host Yetkisi)
     function handleKickPlayer(playerId, playerName) {
       if (confirm(`"${playerName}" adlı oyuncuyu odadan atmak istediğinize emin misiniz?`)) {
         socket.emit('kickPlayer', playerId);
@@ -800,12 +1001,10 @@
       showScreen('screenEntry');
     });
 
-    // Sergi Aşamasını Atla (Beklemeden Geç)
     function handleSkipReveal() {
       socket.emit('skipReveal');
     }
 
-    // Lobiye Dönüş İşleyicisi (Garantili Çözüm)
     function handleReturnToLobby() {
       showScreen('screenLobby');
       socket.emit('returnToLobby');
@@ -815,14 +1014,19 @@
       showScreen('screenLobby');
     });
 
-    // Oda Durumu Güncellemesi
     socket.on('roomUpdate', (room) => {
       currentRoomCode = room.code;
+      currentGameMode = room.gameMode || 'classic';
       document.getElementById('displayRoomCode').innerText = room.code;
       document.getElementById('lobbyPlayerCount').innerText = room.players.length;
 
       const me = room.players.find(p => p.id === socket.id);
       isRoomHost = me ? me.isHost : false;
+
+      const modeSelect = document.getElementById('selectGameMode');
+      modeSelect.value = currentGameMode;
+      modeSelect.disabled = !isRoomHost;
+      document.getElementById('modeDescriptionText').innerText = MODE_DESCRIPTIONS[currentGameMode] || '';
 
       document.getElementById('selectRounds').value = room.totalRounds;
       document.getElementById('selectDrawTime').value = room.drawTime;
@@ -835,7 +1039,7 @@
           <span>${p.isHost ? '👑 ' : '👤 '}<b>${p.name}</b> ${p.id === socket.id ? '(Sen)' : ''}</span>
           <div style="display:flex; align-items:center; gap:6px;">
             <span class="player-badge">${p.score} Puan</span>
-            ${isRoomHost && p.id !== socket.id ? `<button class="btn-danger" style="width:auto; min-height:26px; padding:2px 8px; font-size:11px; border-radius:6px;" onclick="handleKickPlayer('${p.id}', '${p.name}')">🚫 At</button>` : ''}
+            ${isRoomHost && p.id !== socket.id ? `<button class="btn-danger" style="width:auto; min-height:24px; padding:2px 7px; font-size:11px; border-radius:6px;" onclick="handleKickPlayer('${p.id}', '${p.name}')">🚫 At</button>` : ''}
           </div>
         </li>
       `).join('');
@@ -871,13 +1075,359 @@
       console.log(`${data.name} ayrıldı.`);
     });
 
-    // 2. Çizim Aşaması & Mobil Dokunmatik Motoru
+    // ========================================================
+    // 2. CANVAS & 15 VEKTÖREL ŞABLON ÇİZİM MOTORU
+    // ========================================================
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     let currentColor = '#000000';
     let currentLineWidth = 6;
 
+    // 15 Hazır Vektörel Şablon (Sol Yarı: x <= 200)
+    function drawHalfTemplate(id) {
+      ctx.save();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#2e1065';
+      ctx.fillStyle = '#f3e8ff';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const cx = 200; // Merkez dikey çizgi
+
+      switch (id) {
+        case 'butterfly':
+          // Gövde & Kafa
+          ctx.beginPath();
+          ctx.ellipse(cx, 160, 10, 45, 0, Math.PI / 2, Math.PI * 1.5);
+          ctx.arc(cx, 105, 12, Math.PI / 2, Math.PI * 1.5);
+          ctx.stroke();
+          // Sol Anten
+          ctx.beginPath();
+          ctx.moveTo(cx, 95);
+          ctx.bezierCurveTo(cx - 20, 60, cx - 45, 55, cx - 40, 45);
+          ctx.stroke();
+          // Sol Üst Kanat
+          ctx.beginPath();
+          ctx.moveTo(cx - 8, 130);
+          ctx.bezierCurveTo(cx - 90, 60, cx - 180, 100, cx - 170, 160);
+          ctx.bezierCurveTo(cx - 150, 200, cx - 80, 185, cx - 8, 175);
+          ctx.fillStyle = '#f5d0fe';
+          ctx.fill();
+          ctx.stroke();
+          // Sol Alt Kanat
+          ctx.beginPath();
+          ctx.moveTo(cx - 8, 175);
+          ctx.bezierCurveTo(cx - 120, 195, cx - 140, 255, cx - 80, 260);
+          ctx.bezierCurveTo(cx - 40, 260, cx - 20, 220, cx - 8, 195);
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case 'cat':
+          // Kedi Sol Kafa & Kulak
+          ctx.beginPath();
+          ctx.moveTo(cx, 90);
+          ctx.lineTo(cx - 50, 95);
+          ctx.lineTo(cx - 95, 45); // Kulak ucu
+          ctx.lineTo(cx - 90, 120);
+          ctx.bezierCurveTo(cx - 130, 160, cx - 120, 220, cx, 230); // Çene
+          ctx.stroke();
+          // Sol Göz
+          ctx.beginPath();
+          ctx.ellipse(cx - 45, 145, 14, 20, -0.2, 0, Math.PI * 2);
+          ctx.stroke();
+          // Sol Burun & Ağız
+          ctx.beginPath();
+          ctx.moveTo(cx, 185);
+          ctx.lineTo(cx - 12, 180);
+          ctx.lineTo(cx, 175);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(cx - 15, 200, 15, 0, Math.PI, false);
+          ctx.stroke();
+          // Bıyıklar
+          ctx.beginPath();
+          ctx.moveTo(cx - 60, 185); ctx.lineTo(cx - 145, 175);
+          ctx.moveTo(cx - 60, 195); ctx.lineTo(cx - 150, 195);
+          ctx.moveTo(cx - 60, 205); ctx.lineTo(cx - 140, 215);
+          ctx.stroke();
+          break;
+
+        case 'house':
+          // Çatı Sol Yarı
+          ctx.beginPath();
+          ctx.moveTo(cx, 50);
+          ctx.lineTo(cx - 150, 140);
+          ctx.lineTo(cx - 120, 140);
+          ctx.stroke();
+          // Baca
+          ctx.beginPath();
+          ctx.rect(cx - 100, 60, 25, 45);
+          ctx.stroke();
+          // Duvar
+          ctx.beginPath();
+          ctx.moveTo(cx - 120, 140);
+          ctx.lineTo(cx - 120, 260);
+          ctx.lineTo(cx, 260);
+          ctx.stroke();
+          // Sol Pencere
+          ctx.beginPath();
+          ctx.rect(cx - 95, 165, 40, 40);
+          ctx.stroke();
+          // Kapı Sol Yarısı
+          ctx.beginPath();
+          ctx.moveTo(cx, 260);
+          ctx.lineTo(cx - 25, 260);
+          ctx.lineTo(cx - 25, 205);
+          ctx.lineTo(cx, 205);
+          ctx.stroke();
+          break;
+
+        case 'guitar':
+          // Gitar Sol Gövde Kavisi
+          ctx.beginPath();
+          ctx.moveTo(cx, 270);
+          ctx.bezierCurveTo(cx - 90, 270, cx - 110, 220, cx - 70, 185);
+          ctx.bezierCurveTo(cx - 45, 160, cx - 80, 130, cx - 15, 105);
+          ctx.lineTo(cx - 12, 40);
+          ctx.lineTo(cx, 40);
+          ctx.stroke();
+          // Ses Deliği Sol Yarısı
+          ctx.beginPath();
+          ctx.arc(cx, 165, 24, Math.PI / 2, Math.PI * 1.5);
+          ctx.stroke();
+          break;
+
+        case 'rocket':
+          // Roket Gövdesi Sol Yarı
+          ctx.beginPath();
+          ctx.moveTo(cx, 40);
+          ctx.bezierCurveTo(cx - 50, 80, cx - 55, 180, cx - 35, 230);
+          ctx.lineTo(cx, 230);
+          ctx.stroke();
+          // Sol Kanat
+          ctx.beginPath();
+          ctx.moveTo(cx - 42, 175);
+          ctx.lineTo(cx - 100, 235);
+          ctx.lineTo(cx - 35, 230);
+          ctx.stroke();
+          // Sol Pencere
+          ctx.beginPath();
+          ctx.arc(cx, 125, 20, Math.PI / 2, Math.PI * 1.5);
+          ctx.stroke();
+          // Sol Ateş
+          ctx.beginPath();
+          ctx.moveTo(cx, 230);
+          ctx.lineTo(cx - 20, 260);
+          ctx.lineTo(cx, 275);
+          ctx.stroke();
+          break;
+
+        case 'heart':
+          // Sol Kalp Lobu
+          ctx.beginPath();
+          ctx.moveTo(cx, 95);
+          ctx.bezierCurveTo(cx - 80, 25, cx - 160, 95, cx - 120, 160);
+          ctx.bezierCurveTo(cx - 90, 205, cx - 35, 240, cx, 270);
+          ctx.fillStyle = '#ffe4e6';
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case 'tree':
+          // Ağaç Sol Gövde & Kök
+          ctx.beginPath();
+          ctx.moveTo(cx, 270);
+          ctx.lineTo(cx - 40, 270);
+          ctx.bezierCurveTo(cx - 20, 240, cx - 18, 180, cx - 25, 145);
+          ctx.stroke();
+          // Sol Yaprak Kümeleri
+          ctx.beginPath();
+          ctx.arc(cx - 50, 145, 35, 0, Math.PI * 2);
+          ctx.arc(cx - 80, 110, 40, 0, Math.PI * 2);
+          ctx.arc(cx - 40, 75, 40, 0, Math.PI * 2);
+          ctx.arc(cx, 55, 35, Math.PI / 2, Math.PI * 1.5);
+          ctx.fillStyle = '#dcfce7';
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case 'skull':
+          // Kafatası Sol Yarı
+          ctx.beginPath();
+          ctx.arc(cx, 120, 75, Math.PI / 2, Math.PI * 1.5);
+          ctx.lineTo(cx - 45, 195);
+          ctx.lineTo(cx - 45, 240);
+          ctx.lineTo(cx, 240);
+          ctx.stroke();
+          // Sol Göz Çukuru
+          ctx.beginPath();
+          ctx.ellipse(cx - 35, 135, 18, 22, -0.1, 0, Math.PI * 2);
+          ctx.fillStyle = '#1e1b4b';
+          ctx.fill();
+          ctx.stroke();
+          // Burun Deliği
+          ctx.beginPath();
+          ctx.moveTo(cx, 175);
+          ctx.lineTo(cx - 10, 185);
+          ctx.lineTo(cx, 190);
+          ctx.stroke();
+          break;
+
+        case 'flower':
+          // Orta Daire Sol Yarı
+          ctx.beginPath();
+          ctx.arc(cx, 120, 25, Math.PI / 2, Math.PI * 1.5);
+          ctx.stroke();
+          // Sol Taç Yapraklar
+          ctx.beginPath();
+          ctx.arc(cx - 45, 90, 25, 0, Math.PI * 2);
+          ctx.arc(cx - 55, 135, 25, 0, Math.PI * 2);
+          ctx.arc(cx - 30, 165, 22, 0, Math.PI * 2);
+          ctx.stroke();
+          // Sap & Sol Yaprak
+          ctx.beginPath();
+          ctx.moveTo(cx, 145);
+          ctx.bezierCurveTo(cx - 15, 190, cx - 15, 235, cx, 270);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(cx - 35, 215, 24, 12, -0.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#dcfce7';
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case 'car':
+          // Spor Araba Sol / Ön Yarısı
+          ctx.beginPath();
+          ctx.moveTo(cx, 120);
+          ctx.lineTo(cx - 65, 135);
+          ctx.lineTo(cx - 130, 175);
+          ctx.lineTo(cx - 165, 185);
+          ctx.lineTo(cx - 165, 215);
+          ctx.lineTo(cx - 135, 215);
+          // Tekerlek Yuvası
+          ctx.arc(cx - 110, 215, 24, Math.PI, 0, false);
+          ctx.lineTo(cx, 215);
+          ctx.stroke();
+          // Tekerlek
+          ctx.beginPath();
+          ctx.arc(cx - 110, 215, 18, 0, Math.PI * 2);
+          ctx.fillStyle = '#334155';
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case 'sun':
+          // Güneş Sol Yarısı
+          ctx.beginPath();
+          ctx.arc(cx, 150, 50, Math.PI / 2, Math.PI * 1.5);
+          ctx.fillStyle = '#fef08a';
+          ctx.fill();
+          ctx.stroke();
+          // Işınlar
+          const angles = [Math.PI, Math.PI * 0.8, Math.PI * 0.65, Math.PI * 1.2, Math.PI * 1.35];
+          angles.forEach(a => {
+            const x1 = cx + Math.cos(a) * 60;
+            const y1 = 150 + Math.sin(a) * 60;
+            const x2 = cx + Math.cos(a) * 90;
+            const y2 = 150 + Math.sin(a) * 90;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+          });
+          break;
+
+        case 'cup':
+          // Kupa Bardak Sol Gövde
+          ctx.beginPath();
+          ctx.moveTo(cx, 90);
+          ctx.lineTo(cx - 55, 90);
+          ctx.bezierCurveTo(cx - 60, 180, cx - 45, 220, cx, 225);
+          ctx.stroke();
+          // Sol Kulp
+          ctx.beginPath();
+          ctx.arc(cx - 60, 145, 25, Math.PI * 0.5, Math.PI * 1.5);
+          ctx.stroke();
+          // Fincan Tabağı
+          ctx.beginPath();
+          ctx.ellipse(cx, 235, 75, 12, 0, Math.PI / 2, Math.PI * 1.5);
+          ctx.stroke();
+          break;
+
+        case 'robot':
+          // Robot Kare Kafa
+          ctx.beginPath();
+          ctx.rect(cx - 85, 90, 85, 120);
+          ctx.stroke();
+          // Sol Anten
+          ctx.beginPath();
+          ctx.moveTo(cx - 45, 90);
+          ctx.lineTo(cx - 45, 55);
+          ctx.arc(cx - 45, 50, 6, 0, Math.PI * 2);
+          ctx.stroke();
+          // Sol Göz
+          ctx.beginPath();
+          ctx.rect(cx - 65, 125, 25, 20);
+          ctx.stroke();
+          // Sol Ağız Yarısı
+          ctx.beginPath();
+          ctx.rect(cx - 55, 175, 55, 15);
+          ctx.stroke();
+          break;
+
+        case 'fish':
+          // Balık Sol Gövde & Burun
+          ctx.beginPath();
+          ctx.moveTo(cx - 150, 150); // Burun ucu
+          ctx.bezierCurveTo(cx - 130, 85, cx - 60, 80, cx, 95);
+          ctx.moveTo(cx - 150, 150);
+          ctx.bezierCurveTo(cx - 130, 215, cx - 60, 220, cx, 205);
+          ctx.stroke();
+          // Sol Göz
+          ctx.beginPath();
+          ctx.arc(cx - 115, 140, 10, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+          ctx.stroke();
+          // Üst Yüzgeç
+          ctx.beginPath();
+          ctx.moveTo(cx - 60, 82);
+          ctx.lineTo(cx - 40, 50);
+          ctx.lineTo(cx, 60);
+          ctx.stroke();
+          break;
+
+        case 'glasses':
+          // Sol Çerçeve
+          ctx.beginPath();
+          ctx.arc(cx - 65, 150, 42, 0, Math.PI * 2);
+          ctx.stroke();
+          // Köprü Sol Yarısı
+          ctx.beginPath();
+          ctx.moveTo(cx, 145);
+          ctx.lineTo(cx - 23, 145);
+          ctx.stroke();
+          // Sol Sap
+          ctx.beginPath();
+          ctx.moveTo(cx - 107, 148);
+          ctx.lineTo(cx - 170, 135);
+          ctx.stroke();
+          break;
+
+        default:
+          ctx.beginPath();
+          ctx.arc(cx, 150, 60, Math.PI / 2, Math.PI * 1.5);
+          ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // Tuvali Sıfırla ve Gerekirse Şablonu Çiz
     function initCanvas() {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -885,8 +1435,56 @@
       ctx.lineJoin = 'round';
       ctx.strokeStyle = currentColor;
       ctx.lineWidth = currentLineWidth;
+
+      // Eğer Co-op Aşama 2 ise ve sol taraf resmi varsa onu çiz
+      if (currentBaseDrawingData) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+          drawCenterGuideLine();
+        };
+        img.src = currentBaseDrawingData;
+        return;
+      }
+
+      // Eğer Resmi Tamamla modundaysak sol şablonu çiz
+      if (currentTemplateId) {
+        drawHalfTemplate(currentTemplateId);
+      }
+
+      // Orta dikey kesikli rehber çizgisi (Gerekiyorsa)
+      if (currentDrawingConstraint !== 'all') {
+        drawCenterGuideLine();
+      }
     }
-    initCanvas();
+
+    function drawCenterGuideLine() {
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = 'rgba(217, 70, 239, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.moveTo(200, 0);
+      ctx.lineTo(200, 300);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function updateLockOverlays() {
+      const leftLock = document.getElementById('lockOverlayLeft');
+      const rightLock = document.getElementById('lockOverlayRight');
+
+      if (currentDrawingConstraint === 'right') {
+        leftLock.classList.remove('hidden');
+        rightLock.classList.add('hidden');
+      } else if (currentDrawingConstraint === 'left') {
+        leftLock.classList.add('hidden');
+        rightLock.classList.remove('hidden');
+      } else {
+        leftLock.classList.add('hidden');
+        rightLock.classList.add('hidden');
+      }
+    }
 
     function setColor(color, elem) {
       currentColor = color;
@@ -906,22 +1504,35 @@
       initCanvas();
     }
 
+    // Koordinat ve Kısıtlama Kontrolü (Sol / Sağ Sınırlandırması)
     function getCanvasCoords(e) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
       const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
-      return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY
-      };
+
+      let x = (clientX - rect.left) * scaleX;
+      let y = (clientY - rect.top) * scaleY;
+
+      return { x, y };
+    }
+
+    function isPointAllowed(x) {
+      if (currentDrawingConstraint === 'right') {
+        return x >= 200; // Sadece Sağ yarıya izin ver
+      } else if (currentDrawingConstraint === 'left') {
+        return x <= 200; // Sadece Sol yarıya izin ver
+      }
+      return true; // 'all' - serbest
     }
 
     function startDraw(e) {
+      const { x, y } = getCanvasCoords(e);
+      if (!isPointAllowed(x)) return;
+
       if (e.cancelable) e.preventDefault();
       isDrawing = true;
-      const { x, y } = getCanvasCoords(e);
       ctx.beginPath();
       ctx.moveTo(x, y);
     }
@@ -929,7 +1540,16 @@
     function moveDraw(e) {
       if (!isDrawing) return;
       if (e.cancelable) e.preventDefault();
-      const { x, y } = getCanvasCoords(e);
+
+      let { x, y } = getCanvasCoords(e);
+
+      // Kısıtlama clamp (fırçanın diğer yarıya taşmasını engelle)
+      if (currentDrawingConstraint === 'right') {
+        x = Math.max(200, x);
+      } else if (currentDrawingConstraint === 'left') {
+        x = Math.min(200, x);
+      }
+
       ctx.lineTo(x, y);
       ctx.stroke();
     }
@@ -941,25 +1561,14 @@
       }
     }
 
-    // Mouse Olayları
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', moveDraw);
     window.addEventListener('mouseup', stopDraw);
 
-    // Dokunmatik (Touch) Olayları
     canvas.addEventListener('touchstart', startDraw, { passive: false });
     canvas.addEventListener('touchmove', moveDraw, { passive: false });
     window.addEventListener('touchend', stopDraw);
     window.addEventListener('touchcancel', stopDraw);
-
-    socket.on('drawingStart', (data) => {
-      showScreen('screenDraw');
-      document.getElementById('drawRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
-      document.getElementById('drawTimer').innerText = data.duration;
-      document.getElementById('targetWord').innerText = data.word;
-      document.getElementById('partnerGuesserName').innerText = data.partnerName;
-      initCanvas();
-    });
 
     function finishDrawingEarly() {
       const dataUrl = canvas.toDataURL('image/png');
@@ -972,7 +1581,26 @@
       socket.emit('submitDrawing', dataUrl);
     });
 
-    // 3. Tahmin Aşaması
+    // ========================================================
+    // 3. MOD 1: KLASİK RUSH EVENTLERİ
+    // ========================================================
+
+    socket.on('drawingStart', (data) => {
+      showScreen('screenDraw');
+      currentDrawingConstraint = 'all';
+      currentTemplateId = null;
+      currentBaseDrawingData = null;
+      updateLockOverlays();
+
+      document.getElementById('drawRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
+      document.getElementById('drawTimer').innerText = data.duration;
+      document.getElementById('drawTaskHint').innerText = 'Çizmen Gereken Kelime:';
+      document.getElementById('targetWord').innerText = data.word;
+      document.getElementById('partnerHintText').classList.remove('hidden');
+      document.getElementById('partnerGuesserName').innerText = data.partnerName;
+      initCanvas();
+    });
+
     socket.on('guessingStart', (data) => {
       showScreen('screenGuess');
       document.getElementById('guessRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
@@ -984,6 +1612,7 @@
       document.getElementById('guessWaitArea').classList.add('hidden');
       document.getElementById('guessInput').value = '';
       document.getElementById('guessInput').disabled = false;
+      document.getElementById('guessInput').focus();
     });
 
     document.getElementById('guessInput').addEventListener('keydown', (e) => {
@@ -1004,17 +1633,6 @@
       document.getElementById('guessWaitArea').classList.remove('hidden');
     });
 
-    // 4. Sayaç Güncellemeleri
-    socket.on('timerTick', (timeLeft) => {
-      const dt = document.getElementById('drawTimer');
-      const gt = document.getElementById('guessTimer');
-      const rt = document.getElementById('revealTimer');
-      if (dt) dt.innerText = timeLeft;
-      if (gt) gt.innerText = timeLeft;
-      if (rt) rt.innerText = timeLeft;
-    });
-
-    // 5. Sergi / Teşhir Aşaması
     socket.on('revealStart', (data) => {
       showScreen('screenReveal');
       document.getElementById('revealRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds} Sonu`;
@@ -1037,7 +1655,198 @@
       `).join('');
     });
 
-    // 6. Oyun Sonu & Podyum
+    // ========================================================
+    // 4. MOD 2: RESMİ TAMAMLA (Half-to-Half) EVENTLERİ
+    // ========================================================
+
+    socket.on('completeDrawingStart', (data) => {
+      showScreen('screenDraw');
+      currentDrawingConstraint = 'right'; // Sol kilitli, sağa çizilecek
+      currentTemplateId = data.template.id;
+      currentBaseDrawingData = null;
+      updateLockOverlays();
+
+      document.getElementById('drawRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds}`;
+      document.getElementById('drawTimer').innerText = data.duration;
+      document.getElementById('drawTaskHint').innerText = 'Yarısını Tamamlaman Gereken Şablon:';
+      document.getElementById('targetWord').innerText = data.template.name;
+      document.getElementById('partnerHintText').classList.add('hidden');
+
+      initCanvas();
+    });
+
+    socket.on('completeVotingStart', (data) => {
+      showScreen('screenCompleteVoting');
+      document.getElementById('votingRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds} Oylama`;
+      document.getElementById('votingTimer').innerText = data.duration;
+
+      const container = document.getElementById('votingCardsContainer');
+      container.innerHTML = data.drawings.map(d => {
+        const isMyDrawing = d.authorId === socket.id;
+
+        return `
+          <div class="voting-card">
+            <div class="voting-card-header">
+              <span>${d.anonTitle}</span>
+              <span style="font-size:11px; color:#38bdf8;">Şablon: ${data.templateName}</span>
+            </div>
+            <img src="${d.drawing}" class="voting-img" alt="Çizim">
+            ${isMyDrawing ? `
+              <div style="font-size:12px; color:#c084fc; text-align:center; padding: 6px;">
+                ✨ <b>Senin Eserin</b> (Kendi çizimine oy veremezsin)
+              </div>
+            ` : `
+              <div style="text-align:center;">
+                <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Ne kadar benzemiş? Puan ver:</span>
+                <div class="star-rating" id="stars_${d.id}">
+                  ${[1, 2, 3, 4, 5].map(star => `
+                    <span class="star-btn" onclick="rateDrawing('${d.id}', ${star})">★</span>
+                  `).join('')}
+                </div>
+              </div>
+            `}
+          </div>
+        `;
+      }).join('');
+    });
+
+    function rateDrawing(drawingId, score) {
+      socket.emit('submitCompleteVote', { drawingId, score });
+
+      // Yıldızları parlat
+      const ratingContainer = document.getElementById(`stars_${drawingId}`);
+      if (ratingContainer) {
+        const starSpans = ratingContainer.querySelectorAll('.star-btn');
+        starSpans.forEach((span, index) => {
+          if (index < score) {
+            span.classList.add('active');
+          } else {
+            span.classList.remove('active');
+          }
+        });
+      }
+    }
+
+    socket.on('completeRevealStart', (data) => {
+      showScreen('screenCompleteReveal');
+      document.getElementById('completeRevealRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds} Sonuçları`;
+      document.getElementById('completeRevealTimer').innerText = '10';
+
+      const container = document.getElementById('completeRevealCardsContainer');
+      container.innerHTML = data.results.map((r, idx) => `
+        <div class="reveal-card">
+          <div class="reveal-header">
+            <span>${idx === 0 ? '👑 1.' : idx === 1 ? '🥈 2.' : idx === 2 ? '🥉 3.' : `#${idx + 1}`} 🎨 Çizen: <b>${r.authorName}</b></span>
+            <span style="color:#facc15; font-weight:800;">⭐ ${r.averageScore} / 5</span>
+          </div>
+          <img src="${r.drawing}" class="reveal-img" alt="Tamamlanan Eser">
+          <div class="reveal-footer">
+            <span>🗳️ Toplam ${r.totalVotes} Oy Alındı</span>
+            <span class="status-badge badge-correct">+${r.earnedPoints} Puan</span>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    // ========================================================
+    // 5. MOD 3: EŞLİ YARIM ÇİZİM (CO-OP SPLIT) EVENTLERİ
+    // ========================================================
+
+    socket.on('coopPhase1Start', (data) => {
+      if (data.role === 'drawer') {
+        showScreen('screenDraw');
+        currentDrawingConstraint = 'left'; // Oyuncu A sol yarıyı çizer
+        currentTemplateId = null;
+        currentBaseDrawingData = null;
+        updateLockOverlays();
+
+        document.getElementById('drawRoundBadge').innerText = `Tur ${data.round} (Aşama 1 - Sol Yarı)`;
+        document.getElementById('drawTimer').innerText = data.duration;
+        document.getElementById('drawTaskHint').innerText = 'Ortak Kelimeniz (SOL YARISINI ÇİZ):';
+        document.getElementById('targetWord').innerText = data.word;
+        document.getElementById('partnerHintText').classList.remove('hidden');
+        document.getElementById('partnerGuesserName').innerText = `${data.partnerName} (Sağ Yarıyı O Çizecek)`;
+
+        initCanvas();
+      } else {
+        // Waiter (Oyuncu B bekler)
+        showScreen('screenCoopWait');
+        document.getElementById('coopWaitBadge').innerText = `Tur ${data.round} (Aşama 1)`;
+        document.getElementById('coopWaitTimer').innerText = data.duration;
+        document.getElementById('coopWaitHint').innerText = `Eşin "${data.partnerName}" sol yarıyı çiziyor...`;
+        document.getElementById('coopWaitContent').innerHTML = `
+          <div style="font-size:16px; margin-bottom:8px;">Kelimeniz: <b style="color:#38bdf8;">${data.word}</b></div>
+          <p style="font-size:12px; color:#c084fc;">Şu an eşin tuvalin sol yarısını çiziyor. Süre bittiğinde tuval sana geçecek ve sağ yarısını tamamlayacaksın!</p>
+        `;
+      }
+    });
+
+    socket.on('coopPhase2Start', (data) => {
+      if (data.role === 'drawer') {
+        showScreen('screenDraw');
+        currentDrawingConstraint = 'right'; // Oyuncu B sağ yarıyı çizer
+        currentTemplateId = null;
+        currentBaseDrawingData = data.leftDrawing;
+        updateLockOverlays();
+
+        document.getElementById('drawRoundBadge').innerText = `Tur ${data.round} (Aşama 2 - Sağ Yarı)`;
+        document.getElementById('drawTimer').innerText = data.duration;
+        document.getElementById('drawTaskHint').innerText = 'Eşinin Çizimini Tamamla (SAĞ YARI):';
+        document.getElementById('targetWord').innerText = data.word;
+        document.getElementById('partnerHintText').classList.remove('hidden');
+        document.getElementById('partnerGuesserName').innerText = `${data.partnerName} (Sol Yarıyı O Çizdi)`;
+
+        initCanvas();
+      } else {
+        // Waiter (Oyuncu A bekler)
+        showScreen('screenCoopWait');
+        document.getElementById('coopWaitBadge').innerText = `Tur ${data.round} (Aşama 2)`;
+        document.getElementById('coopWaitTimer').innerText = data.duration;
+        document.getElementById('coopWaitHint').innerText = `Eşin "${data.partnerName}" sağ yarıyı tamamlıyor...`;
+        document.getElementById('coopWaitContent').innerHTML = `
+          <div style="font-size:16px; margin-bottom:8px;">Kelimeniz: <b style="color:#38bdf8;">${data.word}</b></div>
+          <p style="font-size:12px; color:#c084fc;">Çizdiğin sol yarı eşine iletildi. Şu an sağ yarıyı tamamlıyor! Birazdan ortak eseriniz sergilenecek.</p>
+        `;
+      }
+    });
+
+    socket.on('coopRevealStart', (data) => {
+      showScreen('screenCoopReveal');
+      document.getElementById('coopRevealRoundBadge').innerText = `Tur ${data.round} / ${data.totalRounds} Eserleri`;
+      document.getElementById('coopRevealTimer').innerText = '10';
+
+      const container = document.getElementById('coopRevealCardsContainer');
+      container.innerHTML = data.results.map(r => `
+        <div class="reveal-card">
+          <div class="reveal-header">
+            <span>🤝 <b>${r.teamTitle}</b></span>
+            <span style="color:#38bdf8; font-weight:800;">Kelime: ${r.word}</span>
+          </div>
+          <img src="${r.finalDrawing}" class="reveal-img" alt="Ortak Çizim">
+          <div class="reveal-footer">
+            <span style="font-size:11px; color:#c084fc;">Mükemmel Takım Çalışması!</span>
+            <span class="status-badge badge-correct">+100 Puan (Her İki Eşe)</span>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    // ========================================================
+    // 6. SAYAÇ & OYUN SONU
+    // ========================================================
+
+    socket.on('timerTick', (timeLeft) => {
+      const timers = [
+        'drawTimer', 'guessTimer', 'revealTimer',
+        'votingTimer', 'completeRevealTimer',
+        'coopWaitTimer', 'coopRevealTimer'
+      ];
+      timers.forEach(tId => {
+        const el = document.getElementById(tId);
+        if (el) el.innerText = timeLeft;
+      });
+    });
+
     socket.on('gameOver', (data) => {
       showScreen('screenGameOver');
       const podiumList = document.getElementById('finalPodiumList');
